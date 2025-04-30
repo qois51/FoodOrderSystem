@@ -1,7 +1,10 @@
 #include <iostream>
-#include "hello.h"
+// #include "hello.h"
+#include "UserDB.h"
 
 int main() {
-    testPrint();
+    // testPrint();
+    UserDB users("../data/userData.csv");
+
     return 0;
 }

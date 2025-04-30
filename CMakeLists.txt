@@ -13,3 +13,6 @@ file(GLOB SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 # Build
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+# Copy data files to build directory
+file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR})
