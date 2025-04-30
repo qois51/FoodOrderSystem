@@ -4,7 +4,7 @@
 
 int main() {
     // testPrint();
-    UserDB users("../data/userData.csv");
+    UserDB users("./data/userData.csv");
 
     return 0;
 }
