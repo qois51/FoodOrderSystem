@@ -1,0 +1,4 @@
+OrderId, Tanggal, Status, Item, Banyak
+ORD001, 2025-05-02, selesai, Nasi Goreng, 1
+ORD001, 2025-05-02, selesai, Jeruk Nipis, 1
+ORD002, 2025-05-02, diproses, Jus Alpukat, 1
