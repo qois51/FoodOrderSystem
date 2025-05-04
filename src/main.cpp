@@ -2,44 +2,38 @@
 #include <string>
 #include "UserDB.h"
 #include "OrdersDB.h"
-#include "auth.h"
-
-int main() {
-    std::string username, password;
-
-    std::cout << "=== Login Sistem Pemesanan ===\n";
-    std::cout << "Username: ";
-    std::cin >> username;
-    std::cout << "Password: ";
-    std::cin >> password;
-
-    if (cekLogin(username, password)) {
-        std::cout << "Login berhasil!\n";
-
-        // Lanjutkan ke fitur lainnya setelah login
-        // UserDB users("./data/userData.csv");
-        OrdersDB orders("./data/orderData.csv");
-
-        // Tambahkan logika berikutnya seperti tampilkan menu, input pesanan, dsb.
-
-    } else {
-        std::cout << "Username atau password salah.\n";
 
 using namespace std;
 
 int main() {
-    string dbPath = "data/userData.csv";
-    UserDB users(dbPath);
+    UserDB users("data/userData.csv");
+    OrdersDB orders("data/orderData.csv");
 
     int choice;
-    cout << "===== MENU =====" << endl;
-    cout << "1. Register" << endl;
-    cout << "2. Lupa Password" << endl;
-    cout << "Pilih menu (1/2): ";
+    cout << "===== SISTEM PEMESANAN =====" << endl;
+    cout << "1. Login" << endl;
+    cout << "2. Register" << endl;
+    cout << "3. Lupa Password" << endl;
+    cout << "Pilih menu (1/2/3): ";
     cin >> choice;
     cin.ignore(); // buang newline
 
     if (choice == 1) {
+        string username, password;
+        cout << "\n=== LOGIN ===" << endl;
+        cout << "Username: ";
+        getline(cin, username);
+        cout << "Password: ";
+        getline(cin, password);
+
+        if (users.checkLogin(username, password)) {
+            cout << "Login berhasil!\n";
+            // Tambahkan fitur lanjutan setelah login di sini
+        } else {
+            cout << "Username atau password salah\n";
+        }
+
+    } else if (choice == 2) {
         string username, nama, password, role;
 
         cout << "\n=== REGISTRASI ===" << endl;
@@ -53,13 +47,12 @@ int main() {
         getline(cin, role);
 
         if (users.addUser(username, nama, password, role)) {
-            users.saveToFile();
             cout << "Akun berhasil dibuat!\n";
         } else {
-            cout << "Username sudah digunakan. Registrasi gagal.\n";
+            cout << "Registrasi gagal\n";
         }
 
-    } else if (choice == 2) {
+    } else if (choice == 3) {
         string username, nama, newPass;
 
         cout << "\n=== LUPA PASSWORD ===" << endl;
@@ -71,14 +64,13 @@ int main() {
         getline(cin, newPass);
 
         if (users.resetPassword(username, nama, newPass)) {
-            users.saveToFile();
-            cout << "Password berhasil diubah.\n";
+            cout << "Password berhasil diubah\n";
         } else {
-            cout << "Data tidak cocok. Password gagal diubah.\n";
+            cout << "Password gagal diubah\n";
         }
 
     } else {
-        cout << "Menu tidak valid.\n";
+        cout << "Menu tidak valid\n";
     }
 
     return 0;

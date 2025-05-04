@@ -21,3 +21,8 @@ Pastikan sudah ada ``cd build`` folder, lalu jalankan :
 cmake --build .
 ./main.exe
 ```
+
+atau
+```
+make run
+```
