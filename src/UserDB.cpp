@@ -6,7 +6,6 @@
 
 using namespace std;
 
-// Constructor dengan inisialisasi path
 UserDB::UserDB(std::string filelocation)
     : dbFilePath((std::filesystem::path("..") / filelocation).string()) {
 
@@ -43,17 +42,22 @@ UserDB::UserDB(std::string filelocation)
 
 bool UserDB::addUser(const string& username, const string& nama, const string& password, const string& role) {
     if (userMap.count(username)) {
+        cout << "Username sudah digunakan\n";
         return false; // Username sudah ada
     }
+
     userMap[username] = UserInfo(nama, password, role);
+
+    if (!saveToFile()) return false;
+
     return true;
 }
 
-void UserDB::saveToFile() {
+bool UserDB::saveToFile() {
     ofstream file(dbFilePath);
     if (!file) {
         cerr << "Gagal menyimpan ke: " << filesystem::absolute(dbFilePath) << endl;
-        return;
+        return false;
     }
 
     file << "username,nama,password,role\n";
@@ -63,22 +67,26 @@ void UserDB::saveToFile() {
              << userInfo.password << "," 
              << userInfo.role << "\n";
     }
+
     cout << "Data disimpan ke: " << filesystem::absolute(dbFilePath) << endl;
+    return true;
 }
 
 bool UserDB::resetPassword(const string& username, const string& nama, const string& newPassword) {
     auto it = userMap.find(username);
     if (it == userMap.end() || it->second.nama != nama) {
+        cout << "Data tidak cocok" << endl;
         return false;
     }
     it->second.password = newPassword;
+
+    if (!saveToFile()) return false;
     return true;
 }
 
 bool UserDB::checkLogin(const std::string& username, const std::string& password) {
-    auto it = userMap.find(username);
-
     // Check apakah user ada
+    auto it = userMap.find(username);
     if (it == userMap.end()) return false;
 
     // Check apakah password cocok

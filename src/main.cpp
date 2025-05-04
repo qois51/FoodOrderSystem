@@ -30,7 +30,7 @@ int main() {
             cout << "Login berhasil!\n";
             // Tambahkan fitur lanjutan setelah login di sini
         } else {
-            cout << "Username atau password salah.\n";
+            cout << "Username atau password salah\n";
         }
 
     } else if (choice == 2) {
@@ -47,10 +47,9 @@ int main() {
         getline(cin, role);
 
         if (users.addUser(username, nama, password, role)) {
-            users.saveToFile();
             cout << "Akun berhasil dibuat!\n";
         } else {
-            cout << "Username sudah digunakan. Registrasi gagal.\n";
+            cout << "Registrasi gagal\n";
         }
 
     } else if (choice == 3) {
@@ -65,14 +64,13 @@ int main() {
         getline(cin, newPass);
 
         if (users.resetPassword(username, nama, newPass)) {
-            users.saveToFile();
-            cout << "Password berhasil diubah.\n";
+            cout << "Password berhasil diubah\n";
         } else {
-            cout << "Data tidak cocok. Password gagal diubah.\n";
+            cout << "Password gagal diubah\n";
         }
 
     } else {
-        cout << "Menu tidak valid.\n";
+        cout << "Menu tidak valid\n";
     }
 
     return 0;

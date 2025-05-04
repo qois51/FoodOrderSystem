@@ -13,7 +13,7 @@ private:
 public:
     UserDB(string filelocation);
     bool addUser(const string& username, const string& nama, const string& password, const string& role);
-    void saveToFile();
+    bool saveToFile();
     bool resetPassword(const string& username, const string& nama, const string& newPassword);
     bool checkLogin(const std::string& username, const std::string& password);
 };
