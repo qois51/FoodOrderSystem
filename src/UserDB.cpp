@@ -1,24 +1,30 @@
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <sstream>
-
-#include "UserInfo.h"
+#include <filesystem> // Untuk path absolut
 #include "UserDB.h"
 
 using namespace std;
 
-UserDB::UserDB(string filelocation) {
-    string line;
-    ifstream file(filelocation);
+// Constructor dengan inisialisasi path
+UserDB::UserDB(string filelocation) : dbFilePath(filelocation) {
+    ifstream file(dbFilePath);
 
-    if (!file.is_open()) {
-        cerr << "Failed to open file: " << filelocation << endl;
+    if (!file) {
+        // Buat file baru dengan header jika tidak ada
+        ofstream createFile(dbFilePath);
+        if (createFile) {
+            createFile << "username,nama,password,role\n";
+            cout << "File baru dibuat: " << filesystem::absolute(dbFilePath) << endl;
+        } else {
+            cerr << "Gagal membuat file di: " << filesystem::absolute(dbFilePath) << endl;
+        }
         return;
     }
 
-    // Skip header
-    getline(file, line);
+    // Baca file yang sudah ada
+    string line;
+    getline(file, line); // Skip header
 
     while (getline(file, line)) {
         stringstream ss(line);
@@ -31,6 +37,39 @@ UserDB::UserDB(string filelocation) {
 
         userMap[username] = UserInfo(nama, pass, role);
     }
+    cout << "Data awal loaded dari: " << filesystem::absolute(dbFilePath) << endl;
+}
 
-    cout << userMap["qois51"].nama << endl;
+bool UserDB::addUser(const string& username, const string& nama, const string& password, const string& role) {
+    if (userMap.count(username)) {
+        return false; // Username sudah ada
+    }
+    userMap[username] = UserInfo(nama, password, role);
+    return true;
+}
+
+void UserDB::saveToFile() {
+    ofstream file(dbFilePath);
+    if (!file) {
+        cerr << "Gagal menyimpan ke: " << filesystem::absolute(dbFilePath) << endl;
+        return;
+    }
+
+    file << "username,nama,password,role\n";
+    for (const auto& [username, userInfo] : userMap) {
+        file << username << "," 
+             << userInfo.nama << "," 
+             << userInfo.password << "," 
+             << userInfo.role << "\n";
+    }
+    cout << "Data disimpan ke: " << filesystem::absolute(dbFilePath) << endl;
+}
+
+bool UserDB::resetPassword(const string& username, const string& nama, const string& newPassword) {
+    auto it = userMap.find(username);
+    if (it == userMap.end() || it->second.nama != nama) {
+        return false;
+    }
+    it->second.password = newPassword;
+    return true;
 }

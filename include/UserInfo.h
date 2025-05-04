@@ -8,6 +8,7 @@ struct UserInfo {
     string role;
 
     UserInfo() = default;
-    UserInfo(string& nama, string& password, string& role)
-        : nama(nama), password(password), role(role) {}
+    UserInfo(const string& nama, const string& password, const string& role)
+    : nama(nama), password(password), role(role) {}
+
 };
