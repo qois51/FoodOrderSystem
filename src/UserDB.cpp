@@ -54,20 +54,23 @@ bool UserDB::addUser(const string& username, const string& nama, const string& p
 }
 
 bool UserDB::saveToFile() {
-    ofstream file(dbFilePath);
+    std::string tempPath = dbFilePath + ".tmp";
+    ofstream file(tempPath);
     if (!file) {
-        cerr << "Gagal menyimpan ke: " << filesystem::absolute(dbFilePath) << endl;
+        cerr << "Gagal menyimpan sementara ke: " << tempPath << endl;
         return false;
     }
 
     file << "username,nama,password,role\n";
     for (const auto& [username, userInfo] : userMap) {
-        file << username << "," 
-             << userInfo.nama << "," 
-             << userInfo.password << "," 
+        file << username << ","
+             << userInfo.nama << ","
+             << userInfo.password << ","
              << userInfo.role << "\n";
     }
 
+    file.close();
+    std::filesystem::rename(tempPath, dbFilePath);  // Atomically replaces original
     cout << "Data disimpan ke: " << filesystem::absolute(dbFilePath) << endl;
     return true;
 }
