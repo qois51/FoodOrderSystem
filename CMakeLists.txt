@@ -9,6 +9,9 @@ file(GLOB SOURCES src/*.cpp)
 # Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# Copy data files to build directory
+file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR})
+
 # Include direktori
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 

@@ -2,7 +2,6 @@
 #include <string>
 #include "UserDB.h"
 #include "OrdersDB.h"
-#include "auth.h"
 
 using namespace std;
 
@@ -27,7 +26,7 @@ int main() {
         cout << "Password: ";
         getline(cin, password);
 
-        if (cekLogin(username, password)) {
+        if (users.checkLogin(username, password)) {
             cout << "Login berhasil!\n";
             // Tambahkan fitur lanjutan setelah login di sini
         } else {

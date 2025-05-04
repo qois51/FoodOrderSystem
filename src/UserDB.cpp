@@ -73,3 +73,16 @@ bool UserDB::resetPassword(const string& username, const string& nama, const str
     it->second.password = newPassword;
     return true;
 }
+
+bool UserDB::checkLogin(const std::string& username, const std::string& password) {
+    auto it = userMap.find(username);
+
+    // Check apakah user ada
+    if (it == userMap.end()) return false;
+
+    // Check apakah password cocok
+    const UserInfo& user = it->second;
+    if (user.password != password) return false;
+
+    return true;
+}
