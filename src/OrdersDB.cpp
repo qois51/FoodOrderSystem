@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -8,9 +9,11 @@
 
 using namespace std;
 
-OrdersDB::OrdersDB(string filelocation) {
+OrdersDB::OrdersDB(string filelocation)
+    : dbFilePath((std::filesystem::path("..") / filelocation).string()) {
+
     string line;
-    ifstream file(filelocation);
+    ifstream file(dbFilePath);
 
     if (!file.is_open()) {
         cerr << "Failed to open file: " << filelocation << endl;
@@ -47,19 +50,5 @@ OrdersDB::OrdersDB(string filelocation) {
         }
 
         orderList[orderId].itemPesanan[item] = quantity;
-    }
-
-    // ✅ Simple output to check
-    std::cout << "Loaded Orders:\n";
-    for (const auto& [orderId, order] : orderList) {
-        std::cout << "Order ID: " << orderId << "\n";
-        std::cout << "  Date: " << order.tanggalPemesanan.year << "-"
-                  << order.tanggalPemesanan.month << "-"
-                  << order.tanggalPemesanan.day << "\n";
-        std::cout << "  Status: " << order.status << "\n";
-        for (const auto& [itemName, qty] : order.itemPesanan) {
-            std::cout << "    " << itemName << " x" << qty << "\n";
-        }
-        std::cout << std::endl;
     }
 }

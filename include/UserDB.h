@@ -8,7 +8,7 @@ using namespace std;
 class UserDB {
 private:
     unordered_map<string, UserInfo> userMap;
-    string dbFilePath; // Menyimpan path file
+    string dbFilePath;
 
 public:
     UserDB(string filelocation);

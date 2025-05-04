@@ -1,13 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <filesystem> // Untuk path absolut
+#include <filesystem>
 #include "UserDB.h"
 
 using namespace std;
 
 // Constructor dengan inisialisasi path
-UserDB::UserDB(string filelocation) : dbFilePath(filelocation) {
+UserDB::UserDB(std::string filelocation)
+    : dbFilePath((std::filesystem::path("..") / filelocation).string()) {
+
     ifstream file(dbFilePath);
 
     if (!file) {
@@ -37,7 +39,6 @@ UserDB::UserDB(string filelocation) : dbFilePath(filelocation) {
 
         userMap[username] = UserInfo(nama, pass, role);
     }
-    cout << "Data awal loaded dari: " << filesystem::absolute(dbFilePath) << endl;
 }
 
 bool UserDB::addUser(const string& username, const string& nama, const string& password, const string& role) {
