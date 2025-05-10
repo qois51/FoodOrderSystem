@@ -2,6 +2,7 @@
 #include <string>
 #include "UserDB.h"
 #include "OrdersDB.h"
+#include "Login.h"
 
 using namespace std;
 
@@ -19,18 +20,12 @@ int main() {
     cin.ignore(); // buang newline
 
     if (choice == 1) {
-        string username, password;
         cout << "\n=== LOGIN ===" << endl;
-        cout << "Username: ";
-        getline(cin, username);
-        cout << "Password: ";
-        getline(cin, password);
+        if (login(users)) {
+            cout << "Login Berhasil!\n";
 
-        if (users.checkLogin(username, password)) {
-            cout << "Login berhasil!\n";
-            // Tambahkan fitur lanjutan setelah login di sini
         } else {
-            cout << "Username atau password salah\n";
+            cout << "Login Gagal!\n";
         }
 
     } else if (choice == 2) {
