@@ -3,17 +3,29 @@
 #include <unordered_map>
 #include "UserInfo.h"
 
-using namespace std;
-
 class UserDB {
 private:
-    unordered_map<string, UserInfo> userMap;
-    string dbFilePath;
+    std::unordered_map<std::string, UserInfo> userMap;
+    std::string dbFilePath;
+
+    // Helper functions
+    std::string getPasswordInput(const std::string& prompt) const;
+    bool validateRole(const std::string& role) const;
+    bool validatePassword(const std::string& password) const;
 
 public:
-    UserDB(string filelocation);
-    bool addUser(const string& username, const string& nama, const string& password, const string& role);
+    UserDB(std::string filelocation);
+    
+    // UI Functions
+    void showLoginUI() const;
+    void showRegistrationUI();
+    void showResetPasswordUI();
+    
+    // Core Functions
+    bool addUser(const std::string& username, const std::string& nama, 
+                const std::string& password, const std::string& role);
     bool saveToFile();
-    bool resetPassword(const string& username, const string& nama, const string& newPassword);
-    bool checkLogin(const std::string& username, const std::string& password);
+    bool resetPassword(const std::string& username, const std::string& nama, 
+                      const std::string& newPassword);
+    bool checkLogin(const std::string& username, const std::string& password) const;
 };
