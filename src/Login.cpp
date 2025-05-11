@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-bool login(UserDB& userDB) {
+std::string login (UserDB& userDB) {
     std::string username;
     std::string password;
 
@@ -14,9 +14,9 @@ bool login(UserDB& userDB) {
 
     if (userDB.checkLogin(username, password)) {
         std::cout << "Login berhasil!\n";
-        return true;
+        return username;
     } else {
         std::cout << "Password atau username salah!\n";
-        return false;
+        return "";
     }
 }

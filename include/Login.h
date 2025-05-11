@@ -1,8 +1,9 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
+#include <string>
 #include "UserDB.h"
 
-bool login(UserDB& userDB);
+std::string login(UserDB& userDB);
 
 #endif 

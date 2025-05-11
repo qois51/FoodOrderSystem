@@ -21,11 +21,12 @@ int main() {
 
     if (choice == 1) {
         cout << "\n=== LOGIN ===" << endl;
-        if (login(users)) {
+        string loggedInUsername = login(users);
+        if (!loggedInUsername.empty()) {
             cout << "Login Berhasil!\n";
-
-        } else {
-            cout << "Login Gagal!\n";
+            
+            string role = users.getUserRole(loggedInUsername);
+            cout << "Role user: " << role << endl;
         }
 
     } else if (choice == 2) {

@@ -98,3 +98,12 @@ bool UserDB::checkLogin(const std::string& username, const std::string& password
 
     return true;
 }
+
+// fungsi baru task coksat buat dapetin role user berdasarkan username
+std::string UserDB::getUserRole(const std::string& username) {
+    auto it = userMap.find(username);
+    if (it != userMap.end()) {
+        return it->second.role;
+    }
+    return "";
+}
