@@ -6,24 +6,21 @@
 
 using namespace std;
 
-UserDB::UserDB(std::string filelocation)
-    : dbFilePath((std::filesystem::path("..") / filelocation).string()) {
-
+UserDB::UserDB(string filelocation) : dbFilePath((filesystem::path("..") / filelocation).string()) {
     ifstream file(dbFilePath);
 
     if (!file) {
-        // Buat file baru dengan header jika tidak ada
+        filesystem::create_directories(filesystem::path(dbFilePath).parent_path());
         ofstream createFile(dbFilePath);
         if (createFile) {
             createFile << "username,nama,password,role\n";
-            cout << "File baru dibuat: " << filesystem::absolute(dbFilePath) << endl;
+            cout << "Created new file: " << filesystem::absolute(dbFilePath) << endl;
         } else {
-            cerr << "Gagal membuat file di: " << filesystem::absolute(dbFilePath) << endl;
+            cerr << "Failed to create file at: " << filesystem::absolute(dbFilePath) << endl;
         }
         return;
     }
 
-    // Baca file yang sudah ada
     string line;
     getline(file, line); // Skip header
 
@@ -38,23 +35,98 @@ UserDB::UserDB(std::string filelocation)
 
         userMap[username] = UserInfo(nama, pass, role);
     }
+    cout << "Loaded data from: " << filesystem::absolute(dbFilePath) << endl;
 }
 
-bool UserDB::addUser(const string& username, const string& nama, const string& password, const string& role) {
-    if (userMap.count(username)) {
-        cout << "Username sudah digunakan\n";
-        return false; // Username sudah ada
+string UserDB::getPasswordInput(const string& prompt) const {
+    cout << prompt;
+    string input;
+    getline(cin, input);
+    return input;
+}
+
+bool UserDB::validateRole(const string& role) const {
+    return (role == "pelanggan" || role == "petugas");
+}
+
+bool UserDB::validatePassword(const string& password) const {
+    return password.length() >= 6;
+}
+
+void UserDB::showLoginUI() const {
+    string username, password;
+    
+    cout << "\n=== LOGIN ===" << endl;
+    cout << "Username: ";
+    getline(cin, username);
+    password = getPasswordInput("Password: ");
+
+    if (checkLogin(username, password)) {
+        cout << "Login berhasil!\n";
+    } else {
+        cout << "Username atau password salah\n";
+    }
+}
+
+void UserDB::showRegistrationUI() {
+    string username, nama, password, role;
+
+    cout << "\n=== REGISTRASI ===" << endl;
+    cout << "Username: ";
+    getline(cin, username);
+    cout << "Nama Lengkap: ";
+    getline(cin, nama);
+    
+    while (true) {
+        password = getPasswordInput("Password (min 6 karakter): ");
+        if (validatePassword(password)) break;
+        cout << "Password terlalu pendek!\n";
     }
 
+    while (true) {
+        cout << "Role (pelanggan/petugas): ";
+        getline(cin, role);
+        if (validateRole(role)) break;
+        cout << "Role harus 'pelanggan' atau 'petugas'\n";
+    }
+
+    if (addUser(username, nama, password, role)) {
+        cout << "Akun berhasil dibuat!\n";
+    }
+}
+
+void UserDB::showResetPasswordUI() {
+    string username, nama, newPass;
+
+    cout << "\n=== LUPA PASSWORD ===" << endl;
+    cout << "Username: ";
+    getline(cin, username);
+    cout << "Nama Lengkap (autentikasi): ";
+    getline(cin, nama);
+    
+    while (true) {
+        newPass = getPasswordInput("Password Baru (min 6 karakter): ");
+        if (validatePassword(newPass)) break;
+        cout << "Password terlalu pendek!\n";
+    }
+
+    if (resetPassword(username, nama, newPass)) {
+        cout << "Password berhasil diubah\n";
+    }
+}
+
+bool UserDB::addUser(const string& username, const string& nama, 
+                    const string& password, const string& role) {
+    if (userMap.count(username)) {
+        cout << "Username sudah digunakan\n";
+        return false;
+    }
     userMap[username] = UserInfo(nama, password, role);
-
-    if (!saveToFile()) return false;
-
-    return true;
+    return saveToFile();
 }
 
 bool UserDB::saveToFile() {
-    std::string tempPath = dbFilePath + ".tmp";
+    string tempPath = dbFilePath + ".tmp";
     ofstream file(tempPath);
     if (!file) {
         cerr << "Gagal menyimpan sementara ke: " << tempPath << endl;
@@ -70,31 +142,23 @@ bool UserDB::saveToFile() {
     }
 
     file.close();
-    std::filesystem::rename(tempPath, dbFilePath);  // Atomically replaces original
+    filesystem::rename(tempPath, dbFilePath);
     cout << "Data disimpan ke: " << filesystem::absolute(dbFilePath) << endl;
     return true;
 }
 
-bool UserDB::resetPassword(const string& username, const string& nama, const string& newPassword) {
+bool UserDB::resetPassword(const string& username, const string& nama, 
+                          const string& newPassword) {
     auto it = userMap.find(username);
     if (it == userMap.end() || it->second.nama != nama) {
         cout << "Data tidak cocok" << endl;
         return false;
     }
     it->second.password = newPassword;
-
-    if (!saveToFile()) return false;
-    return true;
+    return saveToFile();
 }
 
-bool UserDB::checkLogin(const std::string& username, const std::string& password) {
-    // Check apakah user ada
+bool UserDB::checkLogin(const string& username, const string& password) const {
     auto it = userMap.find(username);
-    if (it == userMap.end()) return false;
-
-    // Check apakah password cocok
-    const UserInfo& user = it->second;
-    if (user.password != password) return false;
-
-    return true;
+    return it != userMap.end() && it->second.password == password;
 }
