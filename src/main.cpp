@@ -21,16 +21,20 @@ int main() {
     if (choice == 1) {
         string username, password;
         cout << "\n=== LOGIN ===" << endl;
-        cout << "Username: ";
-        getline(cin, username);
-        cout << "Password: ";
-        getline(cin, password);
+        string username = users.login();
+        if(!username.empty()) {
+             users.showUserActivities(username);
+        }else {
+            cout << "Login gagal. Apakah anda ingin coba lagi?(y/n): ";
+            char retry;
+            cin >> retry;
+            cin.ignore();
 
-        if (users.checkLogin(username, password)) {
-            cout << "Login berhasil!\n";
-            // Tambahkan fitur lanjutan setelah login di sini
-        } else {
-            cout << "Username atau password salah\n";
+            if (retry == 'y' || retry == 'Y') {
+                cout << "Silakan coba login kembali.\n";
+            } else {
+                cout << "Keluar dari sistem.\n";
+            }
         }
 
     } else if (choice == 2) {

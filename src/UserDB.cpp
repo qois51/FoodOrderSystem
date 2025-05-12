@@ -98,3 +98,47 @@ bool UserDB::checkLogin(const std::string& username, const std::string& password
 
     return true;
 }
+
+std::string UserDB::login() {
+    string username;
+    string password;
+
+    cout << "Silahkan masukkan username: ";
+    getline(cin, username);
+
+    cout << "Silahkan masukkan password: ";
+    getline(cin, password);
+
+    if(checkLogin(username, password)) {
+        cout << "Login berhasil" << endl;
+        return username;
+    } else {
+        cout << "Username atau password salah. Silahkan coba lagi." << endl;
+        return "";
+    }
+}
+
+void UserDB::showUserActivities(const std::string& username) {
+    auto it =userMap.find(username);
+    if (in == userMap.end()) {
+        cout << "User tidak ditemukan" << endl;
+        return; 
+    }
+
+    const UserInfo& user = it->second;
+    cout<< "\n=== Daftar Aktivitas untuk user dengan role '" << user.role << "' ===" << endl;
+
+    if(user.role == "pelanggan") {
+        cout << "1. Lihat daftar pesanan" << endl;
+        cout << "2. Buat pesanan baru" << endl;
+        cout << "3. Lihat riwayat pesanan" << endl;
+        cout << "4. Logout" << endl;
+    }else if (user.role == "petugas") {
+        cout << "1. Kelola pesanan" << endl;
+        cout << "2. Lihat laporan" << endl;
+        cout << "3. Kelola pengguna" << endl;
+        cout << "4. Logout" << endl;
+    } else {
+        cout << "Role tidak dikenali" << endl;
+    }
+}

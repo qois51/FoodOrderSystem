@@ -16,4 +16,6 @@ public:
     bool saveToFile();
     bool resetPassword(const string& username, const string& nama, const string& newPassword);
     bool checkLogin(const std::string& username, const std::string& password);
+    std::string login();
+    void showUserActivities(const std::string& username);
 };
