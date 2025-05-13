@@ -163,7 +163,7 @@ bool UserDB::checkLogin(const string& username, const string& password) const {
     return it != userMap.end() && it->second.password == password;
 }
 
-bool UserDB::login() {
+std::string UserDB::login() {
     std::string username;
     std::string password;
 
@@ -171,14 +171,41 @@ bool UserDB::login() {
     std::cout << "Silahkan masukkan username: ";
     std::getline(std::cin, username);
 
-    // Memanfaatkan fungsi getPasswordInput yang sudah ada untuk input password
     password = getPasswordInput("Silahkan masukkan password: ");
 
     if (checkLogin(username, password)) {
         std::cout << "Login berhasil!\n";
-        return true;
+        return username;
     } else {
         std::cout << "Username atau password salah\n";
-        return false;
+        return "";
+    }
+}
+
+std::string UserDB::getUserRole(const std::string& username) const {
+    auto it = userMap.find(username);
+    if (it != userMap.end()) {
+        return it->second.role;
+    }
+    return ""; //kalau gak ketemu usernya
+}
+
+void UserDB::displayUserActivities(const std::string& username) const {
+    std::string role = getUserRole(username);
+
+    if(role == "pelanggan") {
+        // nanti revisi aja kalau mau ganti
+        std::cout << "\nAktivitas untuk Pelanggan:\n";
+        std::cout << "1. Lihat Pesanan\n";
+        std::cout << "2. Buat Pesanan Baru\n";
+        std::cout << "3. Ubah Profil\n";
+    } else if(role == "petugas") {
+        // nanti revisi aja kalau mau ganti
+        std::cout << "\nAktivitas untuk Petugas:\n";
+        std::cout << "1. Kelola Pesanan\n";
+        std::cout << "2. Tambahkan Produk\n";
+        std::cout << "3. Lihat Laporan\n";
+    } else {
+        std::cout << "Role tidak dikenal atau tidak ditemukan.\n";
     }
 }

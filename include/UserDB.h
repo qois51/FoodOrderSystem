@@ -21,7 +21,7 @@ public:
     void showRegistrationUI();
     void showResetPasswordUI();
     
-    bool login();
+    std::string login();
     
     // Core Functions
     bool addUser(const std::string& username, const std::string& nama, 
@@ -31,4 +31,6 @@ public:
                       const std::string& newPassword);
     bool checkLogin(const std::string& username, const std::string& password) const;
     
+    std::string getUserRole(const std::string& username) const;
+    void displayUserActivities(const std::string& username) const;
 };

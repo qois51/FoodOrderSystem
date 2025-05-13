@@ -14,13 +14,16 @@ int main() {
     cin.ignore();
 
     switch(choice) {
-        case 1:
-            if (users.login()) {
-                std::cout << "Selamat datang!\n";
+        case 1: {
+            std::string username = users.login();
+            if (!username.empty()) {
+                std::cout << "Selamat datang, " << username << "!\n";
+                users.displayUserActivities(username);
             } else {
                 std::cout << "Gagal login, silakan coba lagi.\n";
             }
             break;
+        }
         case 2:
             users.showRegistrationUI();
             break;
