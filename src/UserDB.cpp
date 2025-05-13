@@ -162,3 +162,23 @@ bool UserDB::checkLogin(const string& username, const string& password) const {
     auto it = userMap.find(username);
     return it != userMap.end() && it->second.password == password;
 }
+
+bool UserDB::login() {
+    std::string username;
+    std::string password;
+
+    std::cout << "\n=== LOGIN ===" << std::endl;
+    std::cout << "Silahkan masukkan username: ";
+    std::getline(std::cin, username);
+
+    // Memanfaatkan fungsi getPasswordInput yang sudah ada untuk input password
+    password = getPasswordInput("Silahkan masukkan password: ");
+
+    if (checkLogin(username, password)) {
+        std::cout << "Login berhasil!\n";
+        return true;
+    } else {
+        std::cout << "Username atau password salah\n";
+        return false;
+    }
+}

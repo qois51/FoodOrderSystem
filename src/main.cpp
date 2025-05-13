@@ -15,7 +15,11 @@ int main() {
 
     switch(choice) {
         case 1:
-            users.showLoginUI();
+            if (users.login()) {
+                std::cout << "Selamat datang!\n";
+            } else {
+                std::cout << "Gagal login, silakan coba lagi.\n";
+            }
             break;
         case 2:
             users.showRegistrationUI();
