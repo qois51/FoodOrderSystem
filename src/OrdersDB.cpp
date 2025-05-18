@@ -38,15 +38,12 @@ OrdersDB::OrdersDB(string filelocation)
         quantity = stoi(qtyStr);
 
         getline(ss, pelanggan, ',');
-        // Remove spasi diawal
-        while (!pelanggan.empty() && isspace(pelanggan.front())) 
-        pelanggan.erase(pelanggan.begin());
 
         // Parse date
         int year, month, day;
         sscanf(dateStr.c_str(), "%d-%d-%d", &year, &month, &day);
 
-        // Check orderId sudah ada?
+        // Create a new order if it doesn't exist
         if (orderList.find(orderId) == orderList.end()) {
             OrderInfo newOrder;
             newOrder.tanggalPemesanan = {year, month, day};

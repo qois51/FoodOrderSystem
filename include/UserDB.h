@@ -34,5 +34,5 @@ public:
     std::string getUserRole(const std::string& username) const;
     void displayUserActivities(const std::string& username) const;
 
-    void displayAllOrders() const;
+    void viewOrderHistoryCustomer(const std::string& username) const;
 };
