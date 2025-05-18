@@ -212,29 +212,32 @@ void UserDB::displayUserActivities(const std::string& username) const {
     std::string role = getUserRole(username);
 
     if(role == "pelanggan") {
-        // nanti revisi aja kalau mau ganti
-        std::cout << "\nAktivitas untuk Pelanggan:\n";
-        std::cout << "1. Lihat Pesanan\n";
-        std::cout << "2. Buat Pesanan Baru\n";
-        std::cout << "3. Ubah Profil\n";
-        cout << "Pilih aktivitas (1/2/3): ";
+        while(true) {
+            std::cout << "\nAktivitas untuk Pelanggan:\n";
+            std::cout << "1. Lihat Pesanan\n";
+            std::cout << "2. Buat Pesanan Baru\n";
+            std::cout << "3. Logout\n";
+            cout << "Pilih aktivitas (1/2/3): ";
 
-        int choice;
-        cin >> choice;
-        cin.ignore();
+            int choice;
+            cin >> choice;
+            cin.ignore();
 
-        switch(choice) {
-            case 1:
-                UserDB::viewOrderHistoryCustomer(username);
+            if (choice == 3) {
+                cout << "Logout berhasil.\n";
                 break;
-            case 2:
-                ordersDB->createNewOrder(username);
-                break;
-            case 3:
-                cout << "Ubah Profil:\n";
-                break;
-            default:
-                std::cout << "Pilihan tidak valid.\n";
+            }
+
+            switch(choice) {
+                case 1:
+                    UserDB::viewOrderHistoryCustomer(username);
+                    break;
+                case 2:
+                    ordersDB->createNewOrder(username);
+                    break;
+                default:
+                    std::cout << "Pilihan tidak valid.\n";
+            }
         }
     } else if(role == "petugas") {
         // nanti revisi aja kalau mau ganti
