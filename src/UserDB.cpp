@@ -190,9 +190,11 @@ std::string UserDB::login() {
 
     if (checkLogin(username, password)) {
         std::cout << "Login berhasil!\n";
+        currentUser = username;
         return username;
     } else {
         std::cout << "Username atau password salah\n";
+        currentUser.clear();
         return "";
     }
 }
