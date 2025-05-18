@@ -1,5 +1,6 @@
-OrderId, Tanggal, Status, Item, Banyak, Pelanggan 
+OrderId,Tanggal,Status,Item,Banyak,Pelanggan 
 ORD001,2025-05-02,selesai,Nasi Goreng,1,qois51
 ORD001,2025-05-02,selesai,Jeruk Nipis,1,qois51
 ORD002,2025-05-02,diproses,Jus Alpukat,1,yoga123
 ORD003,2025-05-02,selesai,Jeruk Alpukat,3,qois51
+ORD20250519-010056-7519,2025-05-19,diproses,Es Teh Manis,1,qois51

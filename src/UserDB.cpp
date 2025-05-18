@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+
 #include "UserDB.h"
 
 using namespace std;
@@ -216,6 +217,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
         std::cout << "1. Lihat Pesanan\n";
         std::cout << "2. Buat Pesanan Baru\n";
         std::cout << "3. Ubah Profil\n";
+        cout << "Pilih aktivitas (1/2/3): ";
 
         int choice;
         cin >> choice;
@@ -226,7 +228,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
                 UserDB::viewOrderHistoryCustomer(username);
                 break;
             case 2:
-                cout << "Buat Pesanan Baru:\n";
+                ordersDB->createNewOrder(username);
                 break;
             case 3:
                 cout << "Ubah Profil:\n";
