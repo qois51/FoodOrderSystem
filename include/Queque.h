@@ -1,11 +1,11 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef CUSTOM_QUEUE_H
+#define CUSTOM_QUEUE_H
 
 #include <iostream>
 #include <stdexcept>
 
 template <typename T>
-class Queue {
+class CustomQueue {
 private:
     T* data;            // Penyimpanan data
     int frontIdx;       // Indeks depan
@@ -32,10 +32,10 @@ private:
 
 public:
     // Constructor
-    Queue() : data(nullptr), frontIdx(0), rearIdx(0), capacity(0), currentSize(0) {}
+    CustomQueue() : data(nullptr), frontIdx(0), rearIdx(0), capacity(0), currentSize(0) {}
     
     // Destructor
-    ~Queue() {
+    ~CustomQueue() {
         delete[] data;
     }
     
@@ -91,4 +91,4 @@ public:
     }
 };
 
-#endif // QUEUE_H
+#endif // CUSTOM_QUEUE_H

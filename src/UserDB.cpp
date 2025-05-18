@@ -240,11 +240,34 @@ void UserDB::displayUserActivities(const std::string& username) const {
             }
         }
     } else if(role == "petugas") {
-        // nanti revisi aja kalau mau ganti
-        std::cout << "\nAktivitas untuk Petugas:\n";
-        std::cout << "1. Kelola Pesanan\n";
-        std::cout << "2. Tambahkan Produk\n";
-        std::cout << "3. Lihat Laporan\n";
+        while (true) {
+            std::cout << "\nAktivitas untuk Petugas:\n";
+            std::cout << "1. Kelola Pesanan\n";
+            std::cout << "2. Lihat Riwayat Pesanan\n";
+            std::cout << "3. Logout\n";
+            cout << "Pilih aktivitas (1/2/3): ";
+
+            int choice;
+            cin >> choice;
+            cin.ignore();
+
+            if (choice == 3) {
+                cout << "Logout berhasil.\n";
+                break;
+            }
+
+            switch(choice) {
+                case 1:
+                    cout << "Process Orderan:\n";
+                    ordersDB->processOrder();
+                    break;
+                case 2:
+                    cout << "Riwayat Pesanan:\n";
+                    break;
+                default:
+                    std::cout << "Pilihan tidak valid.\n";
+            }
+        }
     } else {
         std::cout << "Role tidak dikenal atau tidak ditemukan.\n";
     }
