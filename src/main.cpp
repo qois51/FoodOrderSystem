@@ -1,8 +1,10 @@
 #include <iostream>
 #include "UserDB.h"
+#include "OrdersDB.h"
 
 int main() {
-    UserDB users("data/userData.csv");
+    OrdersDB orders("data/orderData.csv");
+    UserDB users("data/userData.csv", &orders);
 
     int choice;
     cout << "===== SISTEM PEMESANAN =====" << endl;

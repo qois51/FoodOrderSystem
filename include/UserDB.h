@@ -2,28 +2,27 @@
 #include <string>
 #include <unordered_map>
 #include "UserInfo.h"
+#include "OrdersDB.h"
 
 class UserDB {
 private:
     std::unordered_map<std::string, UserInfo> userMap;
     std::string dbFilePath;
+    OrdersDB* ordersDB;
 
-    // Helper functions
     std::string getPasswordInput(const std::string& prompt) const;
     bool validateRole(const std::string& role) const;
     bool validatePassword(const std::string& password) const;
 
 public:
-    UserDB(std::string filelocation);
+    UserDB(std::string filelocation, OrdersDB* ordersDB);
     
-    // UI Functions
     void showLoginUI() const;
     void showRegistrationUI();
     void showResetPasswordUI();
     
     std::string login();
     
-    // Core Functions
     bool addUser(const std::string& username, const std::string& nama, 
                 const std::string& password, const std::string& role);
     bool saveToFile();
@@ -33,4 +32,6 @@ public:
     
     std::string getUserRole(const std::string& username) const;
     void displayUserActivities(const std::string& username) const;
+
+    void displayAllOrders() const;
 };

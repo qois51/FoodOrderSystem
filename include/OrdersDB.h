@@ -12,4 +12,5 @@ private:
 
 public:
     OrdersDB(string filelocation);
+    const unordered_map<string, OrderInfo>& getOrderList() const;
 };

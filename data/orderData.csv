@@ -1,4 +1,5 @@
-OrderId, Tanggal, Status, Item, Banyak
-ORD001, 2025-05-02, selesai, Nasi Goreng, 1
-ORD001, 2025-05-02, selesai, Jeruk Nipis, 1
-ORD002, 2025-05-02, diproses, Jus Alpukat, 1
+OrderId, Tanggal, Status, Item, Banyak, Pelanggan 
+ORD001, 2025-05-02, selesai, Nasi Goreng, 1, qois51
+ORD001, 2025-05-02, selesai, Jeruk Nipis, 1, qois51
+ORD002, 2025-05-02, diproses, Jus Alpukat, 1, yoga123
+ORD003, 2025-05-02, selesai, Jeruk Alpukat, 3, qois51

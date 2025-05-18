@@ -6,7 +6,10 @@
 
 using namespace std;
 
-UserDB::UserDB(string filelocation) : dbFilePath((filesystem::path("..") / filelocation).string()) {
+UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr) 
+    : dbFilePath((filesystem::path("..") / filelocation).string()),
+      ordersDB(ordersDBPtr) {
+
     ifstream file(dbFilePath);
 
     if (!file) {
@@ -35,7 +38,19 @@ UserDB::UserDB(string filelocation) : dbFilePath((filesystem::path("..") / filel
 
         userMap[username] = UserInfo(nama, pass, role);
     }
+    
+    file.close();
     cout << "Loaded data from: " << filesystem::absolute(dbFilePath) << endl;
+
+    cout << "Memasukkan History Pesanan ke Pelanggan" << endl;
+    for (const auto& [orderId, orderInfo] : ordersDBPtr->getOrderList()) {
+        const string& pelanggan = orderInfo.Pelanggan;
+
+        auto it = userMap.find(pelanggan);
+        if (it != userMap.end()) {
+            it->second.orderHistory.push_back(orderId);
+        }
+    }
 }
 
 string UserDB::getPasswordInput(const string& prompt) const {

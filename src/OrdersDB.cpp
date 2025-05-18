@@ -25,7 +25,7 @@ OrdersDB::OrdersDB(string filelocation)
 
     while (getline(file, line)) {
         stringstream ss(line);
-        string orderId, dateStr, status, item;
+        string orderId, dateStr, status, item, pelanggan;
         int quantity;
 
         getline(ss, orderId, ',');
@@ -37,6 +37,11 @@ OrdersDB::OrdersDB(string filelocation)
         getline(ss, qtyStr, ',');
         quantity = stoi(qtyStr);
 
+        getline(ss, pelanggan, ',');
+        // Remove spasi diawal
+        while (!pelanggan.empty() && isspace(pelanggan.front())) 
+        pelanggan.erase(pelanggan.begin());
+
         // Parse date
         int year, month, day;
         sscanf(dateStr.c_str(), "%d-%d-%d", &year, &month, &day);
@@ -46,9 +51,16 @@ OrdersDB::OrdersDB(string filelocation)
             OrderInfo newOrder;
             newOrder.tanggalPemesanan = {year, month, day};
             newOrder.status = status;
+            newOrder.Pelanggan = pelanggan;
             orderList[orderId] = newOrder;
         }
 
         orderList[orderId].itemPesanan[item] = quantity;
     }
+
+    cout << "Loaded data from: " << filesystem::absolute(dbFilePath) << endl;
+}
+
+const unordered_map<string, OrderInfo>& OrdersDB::getOrderList() const {
+    return orderList;
 }

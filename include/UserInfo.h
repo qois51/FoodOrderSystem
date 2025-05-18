@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 using namespace std;
 struct UserInfo {
@@ -7,8 +8,10 @@ struct UserInfo {
     string password;
     string role;
 
-    UserInfo() = default;
-    UserInfo(const string& nama, const string& password, const string& role)
-    : nama(nama), password(password), role(role) {}
+    vector<string> orderHistory;
 
+    UserInfo() = default;
+    UserInfo(const string& nama, const string& password, 
+             const string& role, vector<string> orderHistory = {})
+        : nama(nama), password(password), role(role), orderHistory(orderHistory) {}
 };
