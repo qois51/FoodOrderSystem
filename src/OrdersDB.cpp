@@ -6,7 +6,6 @@
 #include <ctime>
 #include <iomanip>
 #include <random>
-#include <algorithm>
 
 #include "OrderInfo.h"
 #include "OrdersDB.h"
@@ -177,25 +176,70 @@ void OrdersDB::updateOrderStatusInFile(const std::string& orderId, const std::st
     outFile.close();
 }
 
-std::vector<std::string> OrdersDB::getSortedOrderIds(const std::string& status) {
+void OrdersDB::mergeSort(std::vector<std::string>& arr, int left, int right) {
+    if (left < right) {
+        int mid = left + (right - left) / 2;
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+        merge(arr, left, mid, right);
+    }
+}
+
+void OrdersDB::merge(std::vector<std::string>& arr, int left, int mid, int right) {
+    int n1 = mid - left + 1;
+    int n2 = right - mid;
+
+    std::vector<std::string> L(n1);
+    std::vector<std::string> R(n2);
+
+    for (int i = 0; i < n1; i++)
+        L[i] = arr[left + i];
+    for (int j = 0; j < n2; j++)
+        R[j] = arr[mid + 1 + j];
+
+    int i = 0, j = 0, k = left;
+    while (i < n1 && j < n2) {
+        if (L[i] <= R[j]) {
+            arr[k] = L[i];
+            i++;
+        } else {
+            arr[k] = R[j];
+            j++;
+        }
+        k++;
+    }
+
+    while (i < n1) {
+        arr[k] = L[i];
+        i++;
+        k++;
+    }
+
+    while (j < n2) {
+        arr[k] = R[j];
+        j++;
+        k++;
+    }
+}   
+
+std::vector<std::string> OrdersDB::getSortedOrderIds(const std::string& status, const std::string& username) {
     std::vector<std::string> orderIds;
     
     for (const auto& [orderId, order] : orderList) {
-        if (status.empty() || order.status == status) {
+        // Filter by both status and username (Opsional)
+        bool statusMatch = status.empty() || order.status == status;
+        bool usernameMatch = username.empty() || order.Pelanggan == username;
+        
+        if (statusMatch && usernameMatch) {
             orderIds.push_back(orderId);
         }
     }
     
-    // Sort by order ID (which contains timestamp)
-    std::sort(orderIds.begin(), orderIds.end(), 
-        [](const std::string& a, const std::string& b) {
-            std::string dateTimeA = a.substr(4);
-            std::string dateTimeB = b.substr(4);
-            
-            return dateTimeA < dateTimeB;
-        }
-    );
-    
+    // Use Merge Sort
+    if (!orderIds.empty()) {
+        mergeSort(orderIds, 0, orderIds.size() - 1);
+    }
+
     return orderIds;
 }
 
