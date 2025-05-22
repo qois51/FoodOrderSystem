@@ -2,11 +2,15 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+
 #include "UserDB.h"
 
 using namespace std;
 
-UserDB::UserDB(string filelocation) : dbFilePath((filesystem::path("..") / filelocation).string()) {
+UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr) 
+    : dbFilePath((filesystem::path("..") / filelocation).string()),
+      ordersDB(ordersDBPtr) {
+
     ifstream file(dbFilePath);
 
     if (!file) {
@@ -35,7 +39,19 @@ UserDB::UserDB(string filelocation) : dbFilePath((filesystem::path("..") / filel
 
         userMap[username] = UserInfo(nama, pass, role);
     }
+    
+    file.close();
     cout << "Loaded data from: " << filesystem::absolute(dbFilePath) << endl;
+
+    cout << "Memasukkan History Pesanan ke Pelanggan" << endl;
+    for (const auto& [orderId, orderInfo] : ordersDBPtr->getOrderList()) {
+        const string& pelanggan = orderInfo.Pelanggan;
+
+        auto it = userMap.find(pelanggan);
+        if (it != userMap.end()) {
+            it->second.orderHistory.push_back(orderId);
+        }
+    }
 }
 
 string UserDB::getPasswordInput(const string& prompt) const {
@@ -175,9 +191,11 @@ std::string UserDB::login() {
 
     if (checkLogin(username, password)) {
         std::cout << "Login berhasil!\n";
+        currentUser = username;
         return username;
     } else {
         std::cout << "Username atau password salah\n";
+        currentUser.clear();
         return "";
     }
 }
@@ -194,18 +212,92 @@ void UserDB::displayUserActivities(const std::string& username) const {
     std::string role = getUserRole(username);
 
     if(role == "pelanggan") {
-        // nanti revisi aja kalau mau ganti
-        std::cout << "\nAktivitas untuk Pelanggan:\n";
-        std::cout << "1. Lihat Pesanan\n";
-        std::cout << "2. Buat Pesanan Baru\n";
-        std::cout << "3. Ubah Profil\n";
+        while(true) {
+            std::cout << "\nAktivitas untuk Pelanggan:\n";
+            std::cout << "1. Lihat Pesanan\n";
+            std::cout << "2. Buat Pesanan Baru\n";
+            std::cout << "3. Logout\n";
+            cout << "Pilih aktivitas (1/2/3): ";
+
+            int choice;
+            cin >> choice;
+            cin.ignore();
+
+            if (choice == 3) {
+                cout << "Logout berhasil.\n";
+                break;
+            }
+
+            switch(choice) {
+                case 1:
+                    UserDB::viewOrderHistoryCustomer(username);
+                    break;
+                case 2:
+                    ordersDB->createNewOrder(username);
+                    break;
+                default:
+                    std::cout << "Pilihan tidak valid.\n";
+            }
+        }
     } else if(role == "petugas") {
-        // nanti revisi aja kalau mau ganti
-        std::cout << "\nAktivitas untuk Petugas:\n";
-        std::cout << "1. Kelola Pesanan\n";
-        std::cout << "2. Tambahkan Produk\n";
-        std::cout << "3. Lihat Laporan\n";
+        while (true) {
+            std::cout << "\nAktivitas untuk Petugas:\n";
+            std::cout << "1. Kelola Pesanan\n";
+            std::cout << "2. Lihat Riwayat Pesanan\n";
+            std::cout << "3. Logout\n";
+            cout << "Pilih aktivitas (1/2/3): ";
+
+            int choice;
+            cin >> choice;
+            cin.ignore();
+
+            if (choice == 3) {
+                cout << "Logout berhasil.\n";
+                break;
+            }
+
+            switch(choice) {
+                case 1:
+                    cout << "Process Orderan:\n";
+                    ordersDB->processOrder();
+                    break;
+                case 2:
+                    cout << "Riwayat Pesanan:\n";
+                    break;
+                default:
+                    std::cout << "Pilihan tidak valid.\n";
+            }
+        }
     } else {
         std::cout << "Role tidak dikenal atau tidak ditemukan.\n";
+    }
+}
+
+void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
+    auto it = userMap.find(username);
+    if (it != userMap.end()) {
+        cout << "Riwayat Pesanan untuk " << username << ":\n";
+        bool found = false;
+        for (const auto& [orderId, orderInfo] : ordersDB->getOrderList()) {
+            if (orderInfo.Pelanggan == username) {
+                found = true;
+                cout << "----------------------------------------\n";
+                cout << "ID Pesanan : " << orderId << "\n";
+                cout << "Tanggal    : " << orderInfo.tanggalPemesanan.year << "-"
+                     << orderInfo.tanggalPemesanan.month << "-"
+                     << orderInfo.tanggalPemesanan.day << "\n";
+                cout << "Status     : " << orderInfo.status << "\n";
+                cout << "Item       :\n";
+                for (const auto& [item, qty] : orderInfo.itemPesanan) {
+                    cout << "  - " << item << " x" << qty << "\n";
+                }
+                cout << "----------------------------------------\n";
+            }
+        }
+        if (!found) {
+            cout << "Tidak ada pesanan untuk user ini.\n";
+        }
+    } else {
+        cout << "User tidak ditemukan.\n";
     }
 }

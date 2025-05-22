@@ -10,6 +10,7 @@ struct OrderInfo {
     Date tanggalPemesanan;
     string status;
     unordered_map<string, int> itemPesanan; 
+    string Pelanggan;
 
     OrderInfo() {
         time_t t = time(nullptr);
