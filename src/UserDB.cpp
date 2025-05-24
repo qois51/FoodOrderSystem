@@ -1,13 +1,17 @@
+// --- FILE: UserDB.cpp (LENGKAP, Komentar Minimal) ---
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <iomanip>
 
 #include "UserDB.h"
+#include "OrdersDB.h"
 
 using namespace std;
 
-UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr) 
+UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr)
     : dbFilePath((filesystem::path("..") / filelocation).string()),
       ordersDB(ordersDBPtr) {
 
@@ -18,15 +22,15 @@ UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr)
         ofstream createFile(dbFilePath);
         if (createFile) {
             createFile << "username,nama,password,role\n";
-            cout << "Created new file: " << filesystem::absolute(dbFilePath) << endl;
+            cout << "Membuat file baru: " << filesystem::absolute(dbFilePath) << endl;
         } else {
-            cerr << "Failed to create file at: " << filesystem::absolute(dbFilePath) << endl;
+            cerr << "Gagal membuat file di: " << filesystem::absolute(dbFilePath) << endl;
         }
         return;
     }
 
     string line;
-    getline(file, line); // Skip header
+    getline(file, line);
 
     while (getline(file, line)) {
         stringstream ss(line);
@@ -39,17 +43,18 @@ UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr)
 
         userMap[username] = UserInfo(nama, pass, role);
     }
-    
+
     file.close();
-    cout << "Loaded data from: " << filesystem::absolute(dbFilePath) << endl;
+    cout << "Data dimuat dari: " << filesystem::absolute(dbFilePath) << endl;
 
-    cout << "Memasukkan History Pesanan ke Pelanggan" << endl;
-    for (const auto& [orderId, orderInfo] : ordersDBPtr->getOrderList()) {
-        const string& pelanggan = orderInfo.Pelanggan;
+    if (ordersDB) {
+        for (const auto& [orderId, orderInfo] : ordersDB->getOrderList()) {
+            const string& pelanggan = orderInfo.Pelanggan;
 
-        auto it = userMap.find(pelanggan);
-        if (it != userMap.end()) {
-            it->second.orderHistory.push_back(orderId);
+            auto it = userMap.find(pelanggan);
+            if (it != userMap.end()) {
+                it->second.orderHistory.push_back(orderId);
+            }
         }
     }
 }
@@ -71,7 +76,7 @@ bool UserDB::validatePassword(const string& password) const {
 
 void UserDB::showLoginUI() const {
     string username, password;
-    
+
     cout << "\n=== LOGIN ===" << endl;
     cout << "Username: ";
     getline(cin, username);
@@ -92,7 +97,7 @@ void UserDB::showRegistrationUI() {
     getline(cin, username);
     cout << "Nama Lengkap: ";
     getline(cin, nama);
-    
+
     while (true) {
         password = getPasswordInput("Password (min 6 karakter): ");
         if (validatePassword(password)) break;
@@ -119,7 +124,7 @@ void UserDB::showResetPasswordUI() {
     getline(cin, username);
     cout << "Nama Lengkap (autentikasi): ";
     getline(cin, nama);
-    
+
     while (true) {
         newPass = getPasswordInput("Password Baru (min 6 karakter): ");
         if (validatePassword(newPass)) break;
@@ -131,8 +136,8 @@ void UserDB::showResetPasswordUI() {
     }
 }
 
-bool UserDB::addUser(const string& username, const string& nama, 
-                    const string& password, const string& role) {
+bool UserDB::addUser(const string& username, const string& nama,
+                     const string& password, const string& role) {
     if (userMap.count(username)) {
         cout << "Username sudah digunakan\n";
         return false;
@@ -163,8 +168,8 @@ bool UserDB::saveToFile() {
     return true;
 }
 
-bool UserDB::resetPassword(const string& username, const string& nama, 
-                          const string& newPassword) {
+bool UserDB::resetPassword(const string& username, const string& nama,
+                           const string& newPassword) {
     auto it = userMap.find(username);
     if (it == userMap.end() || it->second.nama != nama) {
         cout << "Data tidak cocok" << endl;
@@ -205,7 +210,7 @@ std::string UserDB::getUserRole(const std::string& username) const {
     if (it != userMap.end()) {
         return it->second.role;
     }
-    return ""; //kalau gak ketemu usernya
+    return "";
 }
 
 void UserDB::displayUserActivities(const std::string& username) const {
@@ -233,7 +238,11 @@ void UserDB::displayUserActivities(const std::string& username) const {
                     UserDB::viewOrderHistoryCustomer(username);
                     break;
                 case 2:
-                    ordersDB->createNewOrder(username);
+                    if (ordersDB) {
+                        ordersDB->createNewOrder(username);
+                    } else {
+                        std::cout << "Sistem pesanan tidak tersedia.\n";
+                    }
                     break;
                 default:
                     std::cout << "Pilihan tidak valid.\n";
@@ -258,11 +267,16 @@ void UserDB::displayUserActivities(const std::string& username) const {
 
             switch(choice) {
                 case 1:
-                    cout << "Process Orderan:\n";
-                    ordersDB->processOrder();
+                    cout << "Proses Pesanan:\n";
+                    if (ordersDB) {
+                        ordersDB->processOrder();
+                    } else {
+                        std::cout << "Sistem pesanan tidak tersedia.\n";
+                    }
                     break;
                 case 2:
                     cout << "Riwayat Pesanan:\n";
+                    std::cout << "Fitur ini belum diimplementasikan untuk petugas.\n";
                     break;
                 default:
                     std::cout << "Pilihan tidak valid.\n";
@@ -274,30 +288,46 @@ void UserDB::displayUserActivities(const std::string& username) const {
 }
 
 void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
-    auto it = userMap.find(username);
-    if (it != userMap.end()) {
-        cout << "Riwayat Pesanan untuk " << username << ":\n";
-        bool found = false;
-        for (const auto& [orderId, orderInfo] : ordersDB->getOrderList()) {
-            if (orderInfo.Pelanggan == username) {
-                found = true;
-                cout << "----------------------------------------\n";
-                cout << "ID Pesanan : " << orderId << "\n";
-                cout << "Tanggal    : " << orderInfo.tanggalPemesanan.year << "-"
-                     << orderInfo.tanggalPemesanan.month << "-"
-                     << orderInfo.tanggalPemesanan.day << "\n";
-                cout << "Status     : " << orderInfo.status << "\n";
-                cout << "Item       :\n";
-                for (const auto& [item, qty] : orderInfo.itemPesanan) {
-                    cout << "  - " << item << " x" << qty << "\n";
-                }
-                cout << "----------------------------------------\n";
-            }
-        }
-        if (!found) {
-            cout << "Tidak ada pesanan untuk user ini.\n";
-        }
-    } else {
-        cout << "User tidak ditemukan.\n";
+    if (!ordersDB) {
+        std::cout << "Sistem pesanan tidak tersedia.\n";
+        return;
     }
+
+    std::cout << "\n===== RIWAYAT PESANAN SAYA (" << username << ") =====" << std::endl;
+
+    std::vector<std::string> customerOrderIds = ordersDB->getSortedOrderIds("", username);
+
+    if (customerOrderIds.empty()) {
+        std::cout << "Anda belum memiliki pesanan.\n";
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+
+    const unordered_map<string, OrderInfo>& allOrders = ordersDB->getOrderList();
+
+    for (const std::string& orderId : customerOrderIds) {
+        auto it = allOrders.find(orderId);
+        if (it != allOrders.end()) {
+            const OrderInfo& order = it->second;
+
+            std::cout << "----------------------------------------\n";
+            std::cout << "ID Pesanan    : " << orderId << std::endl;
+            // Format tanggal agar selalu 2 digit untuk bulan dan hari
+            std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
+                      << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
+                      << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
+            std::cout << "Status        : " << order.status << std::endl;
+            std::cout << "Item Pesanan  :\n";
+
+            for (const auto& pair : order.itemPesanan) {
+                const std::string& itemName = pair.first;
+                int quantity = pair.second;
+                std::cout << "  - " << itemName << " (x" << quantity << ")\n";
+            }
+            std::cout << "----------------------------------------\n";
+        }
+    }
+    std::cout << "Tekan Enter untuk kembali...";
+    std::cin.ignore();
 }
