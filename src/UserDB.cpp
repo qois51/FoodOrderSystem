@@ -252,7 +252,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
         while (true) {
             std::cout << "\nAktivitas untuk Petugas:\n";
             std::cout << "1. Kelola Pesanan\n";
-            std::cout << "2. Lihat Riwayat Pesanan\n";
+            std::cout << "2. Lihat Semua Pesanan\n";
             std::cout << "3. Logout\n";
             cout << "Pilih aktivitas (1/2/3): ";
 
@@ -275,8 +275,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
                     }
                     break;
                 case 2:
-                    cout << "Riwayat Pesanan:\n";
-                    std::cout << "Fitur ini belum diimplementasikan untuk petugas.\n";
+                    viewAllOrdersForStaff();
                     break;
                 default:
                     std::cout << "Pilihan tidak valid.\n";
@@ -327,6 +326,42 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
             }
             std::cout << "----------------------------------------\n";
         }
+    }
+    std::cout << "Tekan Enter untuk kembali...";
+    std::cin.ignore();
+}
+
+
+void UserDB::viewAllOrdersForStaff() const {
+    if (!ordersDB) {
+        std::cout << "Sistem pesanan tidak tersedia.\n";
+        return;
+    }
+
+    std::cout << "\n===== DAFTAR SEMUA PESANAN =====" << std::endl;
+
+    const auto& allOrders = ordersDB->getOrderList();
+
+    if (allOrders.empty()) {
+        std::cout << "Belum ada pesanan yang masuk.\n";
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+
+    for (const auto& [orderId, order] : allOrders) {
+        std::cout << "----------------------------------------\n";
+        std::cout << "ID Pesanan    : " << orderId << std::endl;
+        std::cout << "Pelanggan     : " << order.Pelanggan << std::endl;
+        std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
+                  << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
+                  << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
+        std::cout << "Status        : " << order.status << std::endl;
+        std::cout << "Item Pesanan  :\n";
+        for (const auto& pair : order.itemPesanan) {
+            std::cout << "  - " << pair.first << " (x" << pair.second << ")\n";
+        }
+        std::cout << "----------------------------------------\n";
     }
     std::cout << "Tekan Enter untuk kembali...";
     std::cin.ignore();
