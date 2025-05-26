@@ -35,4 +35,5 @@ public:
     void displayUserActivities(const std::string& username) const;
 
     void viewOrderHistoryCustomer(const std::string& username) const;
+    void viewAllOrdersForStaff() const;
 };
