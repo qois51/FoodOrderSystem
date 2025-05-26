@@ -12,6 +12,7 @@
 #include "Date.h"
 #include "MenuItem.h"
 #include "Queque.h"
+#include "Clear.h"
 
 using namespace std;
 
@@ -113,7 +114,6 @@ void OrdersDB::writeToFile(OrderInfo& order, const string& orderId) {
 
     string dateStr = dateToString(order.tanggalPemesanan);
 
-    // Robust: ensure new line before writing if file does not end with newline
     std::ifstream checkFile(dbFilePath, std::ios::binary);
     bool needsNewline = false;
     if (checkFile.is_open()) {
@@ -257,6 +257,7 @@ void OrdersDB::processOrder() {
     }
 
     while (!orderQueue.isEmpty()) {
+        clearConsole();
         std::cout << "\n========== DAFTAR ANTRIAN ORDER ==========\n";
         int idx = 1;
         for (const auto& orderId : orderIds) {

@@ -1,12 +1,14 @@
 #include <iostream>
 #include "UserDB.h"
 #include "OrdersDB.h"
+#include "Clear.h"
 
 int main() {
     OrdersDB orders("data/orderData.csv");
     UserDB users("data/userData.csv", &orders);
 
     while (true) {
+        clearConsole();
         int choice;
         std::cout << "===== SISTEM PEMESANAN =====" << std::endl;
         std::cout << "1. Login" << std::endl;

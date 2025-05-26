@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "MenuItem.h"
+#include "Clear.h"
 
 std::unordered_map<std::string, std::vector<MenuItem>> menuItems = {
     {"Makanan", {
@@ -28,7 +29,8 @@ std::unordered_map<std::string, int> selectMenuItems() {
     bool done = false;
 
     while (!done) {
-        // Display categories
+        clearConsole();
+
         std::cout << "\nPilih kategori menu:\n";
         std::vector<std::string> categories;
         int idx = 1;
@@ -63,6 +65,8 @@ std::unordered_map<std::string, int> selectMenuItems() {
         std::string category = categories[catChoice - 1];
 
         while (true) {
+            clearConsole();
+
             const auto& items = menuItems[category];
             std::cout << "\nMenu " << category << ":\n";
             for (size_t i = 0; i < items.size(); ++i) {

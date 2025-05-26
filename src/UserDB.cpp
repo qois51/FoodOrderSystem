@@ -8,6 +8,7 @@
 
 #include "UserDB.h"
 #include "OrdersDB.h"
+#include "Clear.h"
 
 using namespace std;
 
@@ -90,6 +91,8 @@ void UserDB::showLoginUI() const {
 }
 
 void UserDB::showRegistrationUI() {
+    clearConsole();
+
     string username, nama, password, role;
 
     cout << "\n=== REGISTRASI ===" << endl;
@@ -117,6 +120,8 @@ void UserDB::showRegistrationUI() {
 }
 
 void UserDB::showResetPasswordUI() {
+    clearConsole();
+
     string username, nama, newPass;
 
     cout << "\n=== LUPA PASSWORD ===" << endl;
@@ -185,6 +190,8 @@ bool UserDB::checkLogin(const string& username, const string& password) const {
 }
 
 std::string UserDB::login() {
+    clearConsole();    
+
     std::string username;
     std::string password;
 
@@ -218,6 +225,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
 
     if(role == "pelanggan") {
         while(true) {
+            clearConsole();
             std::cout << "\nAktivitas untuk Pelanggan:\n";
             std::cout << "1. Lihat Pesanan\n";
             std::cout << "2. Buat Pesanan Baru\n";
@@ -250,6 +258,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
         }
     } else if(role == "petugas") {
         while (true) {
+            clearConsole();
             std::cout << "\nAktivitas untuk Petugas:\n";
             std::cout << "1. Kelola Pesanan\n";
             std::cout << "2. Lihat Semua Pesanan\n";
@@ -287,6 +296,8 @@ void UserDB::displayUserActivities(const std::string& username) const {
 }
 
 void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
+    clearConsole();
+
     if (!ordersDB) {
         std::cout << "Sistem pesanan tidak tersedia.\n";
         return;
@@ -329,10 +340,13 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
     }
     std::cout << "Tekan Enter untuk kembali...";
     std::cin.ignore();
+    clearConsole();
 }
 
 
 void UserDB::viewAllOrdersForStaff() const {
+    clearConsole();
+
     if (!ordersDB) {
         std::cout << "Sistem pesanan tidak tersedia.\n";
         return;
