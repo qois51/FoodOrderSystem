@@ -9,6 +9,7 @@
 #include "UserDB.h"
 #include "OrdersDB.h"
 #include "Clear.h"
+#include "headers.h"
 
 using namespace std;
 
@@ -73,21 +74,6 @@ bool UserDB::validateRole(const string& role) const {
 
 bool UserDB::validatePassword(const string& password) const {
     return password.length() >= 6;
-}
-
-void UserDB::showLoginUI() const {
-    string username, password;
-
-    cout << "\n=== LOGIN ===" << endl;
-    cout << "Username: ";
-    getline(cin, username);
-    password = getPasswordInput("Password: ");
-
-    if (checkLogin(username, password)) {
-        cout << "Login berhasil!\n";
-    } else {
-        cout << "Username atau password salah\n";
-    }
 }
 
 void UserDB::showRegistrationUI() {
@@ -191,11 +177,12 @@ bool UserDB::checkLogin(const string& username, const string& password) const {
 
 std::string UserDB::login() {
     clearConsole();    
+    showMainHeader();
 
     std::string username;
     std::string password;
 
-    std::cout << "\n=== LOGIN ===" << std::endl;
+    std::cout << "=== LOGIN ===" << std::endl;
     std::cout << "Silahkan masukkan username: ";
     std::getline(std::cin, username);
 
