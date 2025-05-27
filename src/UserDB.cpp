@@ -78,39 +78,42 @@ bool UserDB::validatePassword(const string& password) const {
 
 void UserDB::showRegistrationUI() {
     clearConsole();
+    showMainHeader();
 
     string username, nama, password, role;
 
-    cout << "\n=== REGISTRASI ===" << endl;
-    cout << "Username: ";
+    cout << "=== REGISTRASI ===" << endl;
+    cout << "Masukkan Username: ";
     getline(cin, username);
-    cout << "Nama Lengkap: ";
+    cout << "Masukkan Nama Lengkap: ";
     getline(cin, nama);
 
     while (true) {
-        password = getPasswordInput("Password (min 6 karakter): ");
+        password = getPasswordInput("Masukkan Password (min 6 karakter): ");
         if (validatePassword(password)) break;
-        cout << "Password terlalu pendek!\n";
+        cout << "\nPassword terlalu pendek!\n";
     }
 
     while (true) {
         cout << "Role (pelanggan/petugas): ";
         getline(cin, role);
         if (validateRole(role)) break;
-        cout << "Role harus 'pelanggan' atau 'petugas'\n";
+        cout << "\nRole harus 'pelanggan' atau 'petugas'\n";
     }
 
     if (addUser(username, nama, password, role)) {
-        cout << "Akun berhasil dibuat!\n";
+        cout << "\nAkun berhasil dibuat!\n";
+        pauseScreen();
     }
 }
 
 void UserDB::showResetPasswordUI() {
     clearConsole();
+    showMainHeader();
 
     string username, nama, newPass;
 
-    cout << "\n=== LUPA PASSWORD ===" << endl;
+    cout << "=== LUPA PASSWORD ===" << endl;
     cout << "Username: ";
     getline(cin, username);
     cout << "Nama Lengkap (autentikasi): ";
@@ -130,7 +133,7 @@ void UserDB::showResetPasswordUI() {
 bool UserDB::addUser(const string& username, const string& nama,
                      const string& password, const string& role) {
     if (userMap.count(username)) {
-        cout << "Username sudah digunakan\n";
+        cout << "\nUsername sudah digunakan\n";
         return false;
     }
     userMap[username] = UserInfo(nama, password, role);

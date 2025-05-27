@@ -35,7 +35,6 @@ int main() {
                 std::string username = users.login();
                 if (!username.empty()) {
                     std::cout << "\n[SUKSES] Login berhasil! Selamat datang, " << username << "!\n";
-                    pauseScreen();
                     users.displayUserActivities(username);
                 } else {
                     std::cout << "\n[GAGAL] Gagal login, silakan coba lagi.\n";
@@ -45,30 +44,25 @@ int main() {
             }
             case 2: {
                 clearConsole();
-                std::cout << "\n+===========================================+\n";
-                std::cout << "|                 REGISTER                  |\n";
-                std::cout << "+===========================================+\n\n";
-                
                 users.showRegistrationUI();
                 pauseScreen();
                 break;
             }
             case 3: {
                 clearConsole();
-                std::cout << "\n+===========================================+\n";
-                std::cout << "|              RESET PASSWORD               |\n";
-                std::cout << "+===========================================+\n\n";
-                
+
                 users.showResetPasswordUI();
-                pauseScreen();
                 break;
             }
             case 0:
                 std::cout << "\nTerima kasih telah menggunakan sistem.\n";
-                return 0;
-            default:
-                std::cout << "\n[ERROR] Menu tidak valid. Silakan pilih 0-3.\n";
                 pauseScreen();
+                return 0;
+                break;
+            default:
+                std::cout << "\nPilihan tidak valid. Silakan coba lagi.\n";
+                pauseScreen();
+                break;
         }
     }
 }
