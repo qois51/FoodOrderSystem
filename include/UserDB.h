@@ -7,6 +7,7 @@
 class UserDB {
 private:
     std::string currentUser;
+    std::string currentUserFullName;
     std::unordered_map<std::string, UserInfo> userMap;
     std::string dbFilePath;
     OrdersDB* ordersDB;

@@ -1,5 +1,3 @@
-// --- FILE: UserDB.cpp (LENGKAP, Komentar Minimal) ---
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -194,6 +192,10 @@ std::string UserDB::login() {
     if (checkLogin(username, password)) {
         std::cout << "Login berhasil!\n";
         currentUser = username;
+        auto it = userMap.find(username);
+        if (it != userMap.end()) {
+            currentUserFullName = it->second.nama;
+        };
         return username;
     } else {
         std::cout << "Username atau password salah\n";
@@ -216,11 +218,17 @@ void UserDB::displayUserActivities(const std::string& username) const {
     if(role == "pelanggan") {
         while(true) {
             clearConsole();
-            std::cout << "\nAktivitas untuk Pelanggan:\n";
-            std::cout << "1. Lihat Pesanan\n";
-            std::cout << "2. Buat Pesanan Baru\n";
-            std::cout << "3. Logout\n";
-            cout << "Pilih aktivitas (1/2/3): ";
+            showMainHeader();
+
+            std::cout << "================================\n";
+            std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
+            std::cout << "  MENU AKTIVITAS PELANGGAN\n";
+            std::cout << "================================\n";
+            std::cout << " [1] Lihat Pesanan\n";
+            std::cout << " [2] Buat Pesanan Baru\n";
+            std::cout << " [3] Logout\n";
+            std::cout << "-------------------------------------\n";
+            std::cout << " Pilih aktivitas (1/2/3): ";
 
             int choice;
             cin >> choice;
@@ -249,10 +257,16 @@ void UserDB::displayUserActivities(const std::string& username) const {
     } else if(role == "petugas") {
         while (true) {
             clearConsole();
-            std::cout << "\nAktivitas untuk Petugas:\n";
-            std::cout << "1. Kelola Pesanan\n";
-            std::cout << "2. Lihat Semua Pesanan\n";
-            std::cout << "3. Logout\n";
+            showMainHeader();
+
+            std::cout << "================================\n";
+            std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
+            std::cout << "  MENU AKTIVITAS PETUGAS\n";
+            std::cout << "================================\n";
+            std::cout << " [1] Kelola Pesanan\n";
+            std::cout << " [2] Buat Pesanan Baru\n";
+            std::cout << " [3] Lihat Semua Pesanan\n";
+            std::cout << "-------------------------------------\n";
             cout << "Pilih aktivitas (1/2/3): ";
 
             int choice;
