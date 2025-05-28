@@ -71,8 +71,9 @@ std::unordered_map<std::string, int> selectMenuItems() {
 
         if (catChoice == 0) {
             done = true;
-            break;
+            continue;
         }
+        
         std::string category = categories[catChoice - 1];
 
         while (true) {
@@ -135,7 +136,8 @@ std::unordered_map<std::string, int> selectMenuItems() {
         }
     }
 
-    while (true) {
+    bool confirmationDone = false;
+    while (!confirmationDone) {
         clearConsole();
         showMainHeader();
 
@@ -145,6 +147,7 @@ std::unordered_map<std::string, int> selectMenuItems() {
             std::cout << "[1] Tambah item\n";
             std::cout << "[0] Batalkan pesanan\n";
             std::cout << "----------------------------\n"; 
+            
             int confirmChoice;
             while (true) {
                 std::cout << "Pilih menu: ";
@@ -163,13 +166,16 @@ std::unordered_map<std::string, int> selectMenuItems() {
                 }
                 break;
             }
-            if (confirmChoice == 0) selectedItems.clear();
-            else if (confirmChoice == 1) {
-                done = false; 
-                continue;
-            };
-            
-            break;
+
+            if (confirmChoice == 0) {
+                std::cout << "Pesanan dibatalkan.\n";
+                selectedItems.clear();
+                delay(1);
+                return selectMenuItems(); 
+            } else if (confirmChoice == 1) {
+                done = false;
+                confirmationDone = true;
+            }
         } else {
             int idx = 1;
             std::cout << "Daftar pesanan Anda:\n";
@@ -200,19 +206,20 @@ std::unordered_map<std::string, int> selectMenuItems() {
                 }
                 break;
             }
+            
             if (confirmChoice == 1) {
                 std::cout << "Pesanan Anda telah dikonfirmasi.\n";
-                done = true;
                 delay(1);
-                break; 
+                confirmationDone = true;
             } else if (confirmChoice == 2) {
-                done = false; 
-                continue;
+                done = false;
+                confirmationDone = true;
+                return selectMenuItems(); 
             } else if (confirmChoice == 0) {
                 std::cout << "Pesanan dibatalkan.\n";
                 delay(1);
                 selectedItems.clear();
-                break;
+                confirmationDone = true;
             }
         }
     }

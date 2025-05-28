@@ -13,10 +13,10 @@ int main() {
     while (true) {
         clearConsole();
         showMainHeader();
-        std::cout << "[1] Login\n";
-        std::cout << "[2] Register\n";
-        std::cout << "[3] Lupa Password\n";
-        std::cout << "[0] Keluar\n";
+        std::cout << " [1] Login\n";
+        std::cout << " [2] Register\n";
+        std::cout << " [3] Lupa Password\n";
+        std::cout << " [0] Keluar\n";
         std::cout << "\n----------------------------------\n";
         
         int choice;

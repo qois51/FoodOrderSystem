@@ -223,10 +223,10 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << "================================\n";
             std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
             std::cout << "  MENU AKTIVITAS PELANGGAN\n";
-            std::cout << "================================\n";
+            std::cout << "================================\n\n";
             std::cout << " [1] Lihat Pesanan\n";
             std::cout << " [2] Buat Pesanan Baru\n";
-            std::cout << " [3] Logout\n";
+            std::cout << " [3] Logout\n\n";
             std::cout << "-------------------------------------\n";
             std::cout << " Pilih aktivitas (1/2/3): ";
 
