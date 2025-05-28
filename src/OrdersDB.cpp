@@ -86,6 +86,11 @@ string OrdersDB::generateOrderID() {
 }
 
 void OrdersDB::createNewOrder(const std::string& username) {
+    auto selectedItems = selectMenuItems();
+    if (selectedItems.empty()) {
+        return;
+    }
+
     string orderId = OrdersDB::generateOrderID();
     Date today = getCurrentDate();
 
@@ -94,13 +99,11 @@ void OrdersDB::createNewOrder(const std::string& username) {
     newOrder.tanggalPemesanan = today;
     newOrder.status = "diproses";
 
-    auto selectedItems = selectMenuItems();
     for (const auto& [itemName, quantity] : selectedItems) {
         newOrder.itemPesanan[itemName] = quantity;
     }
 
     orderList[orderId] = newOrder;
-    cout << "New order created with ID: " << orderId << endl;
 
     writeToFile(newOrder, orderId);
 }
