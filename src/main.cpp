@@ -1,14 +1,46 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
+
 #include "UserDB.h"
 #include "OrdersDB.h"
-
 #include "Clear.h"
 #include "headers.h"
 
 int main() {
-    OrdersDB orders("../data/orderData.csv");
-    UserDB users("../data/userData.csv", &orders);
+    std::vector<std::string> possiblePaths = {
+        "../data/",            
+        "./data/",             
+        "data/",               
+    };
+    
+    std::string orderDataPath;
+    std::string userDataPath;
+    bool filesFound = false;
+    
+    if (!filesFound) {
+        for (const auto& path : possiblePaths) {
+            std::string testPath = path + "orderData.csv";
+            std::ifstream testFile(testPath);
+            if (testFile.good()) {
+                orderDataPath = testPath;
+                userDataPath = path + "userData.csv";
+                filesFound = true;
+                testFile.close();
+                break;
+            }
+        }
+    }
+    
+    if (!filesFound) {
+        std::cerr << "Error: Could not locate data files in any of the expected locations." << std::endl;
+        std::cout << "Press Enter to exit...";
+        std::cin.ignore();
+        return 1;
+    }
+
+    OrdersDB ordersDB(orderDataPath);
+    UserDB users(userDataPath, &ordersDB);
 
     while (true) {
         clearConsole();
@@ -22,7 +54,6 @@ int main() {
         int choice;
         std::cout << "Pilih menu: ";
         
-        // Input validation
         while (!(std::cin >> choice)) {
             std::cout << "Input tidak valid. Masukkan angka: ";
             std::cin.clear();
@@ -35,6 +66,7 @@ int main() {
                 std::string username = users.login();
                 if (!username.empty()) {
                     std::cout << "\n[SUKSES] Login berhasil! Selamat datang, " << username << "!\n";
+                    delay(1);
                     users.displayUserActivities(username);
                 } else {
                     std::cout << "\n[GAGAL] Gagal login, silakan coba lagi.\n";
