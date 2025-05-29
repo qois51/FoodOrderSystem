@@ -264,8 +264,8 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << "  MENU AKTIVITAS PETUGAS\n";
             std::cout << "================================\n";
             std::cout << " [1] Kelola Pesanan\n";
-            std::cout << " [2] Buat Pesanan Baru\n";
-            std::cout << " [3] Lihat Semua Pesanan\n";
+            std::cout << " [2] Lihat Semua Pesanan\n";
+            std::cout << " [3] Logout\n";
             std::cout << "-------------------------------------\n";
             cout << "Pilih aktivitas (1/2/3): ";
 
@@ -301,14 +301,16 @@ void UserDB::displayUserActivities(const std::string& username) const {
 
 void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
     clearConsole();
+    showMainHeader();
 
     if (!ordersDB) {
         std::cout << "Sistem pesanan tidak tersedia.\n";
         return;
     }
 
-    std::cout << "\n===== RIWAYAT PESANAN SAYA (" << username << ") =====" << std::endl;
+    std::cout << "===== RIWAYAT PESANAN SAYA (" << username << ") =====" << std::endl;
 
+    // Get sorted order IDs for this user (ascending by date)
     std::vector<std::string> customerOrderIds = ordersDB->getSortedOrderIds("", username);
 
     if (customerOrderIds.empty()) {
@@ -319,7 +321,7 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
     }
 
     const unordered_map<string, OrderInfo>& allOrders = ordersDB->getOrderList();
-
+    
     for (const std::string& orderId : customerOrderIds) {
         auto it = allOrders.find(orderId);
         if (it != allOrders.end()) {
@@ -327,7 +329,6 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
 
             std::cout << "----------------------------------------\n";
             std::cout << "ID Pesanan    : " << orderId << std::endl;
-            // Format tanggal agar selalu 2 digit untuk bulan dan hari
             std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
                       << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
                       << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
@@ -342,6 +343,7 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
             std::cout << "----------------------------------------\n";
         }
     }
+    
     std::cout << "Tekan Enter untuk kembali...";
     std::cin.ignore();
     clearConsole();
@@ -350,24 +352,31 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
 
 void UserDB::viewAllOrdersForStaff() const {
     clearConsole();
+    showMainHeader();
 
     if (!ordersDB) {
         std::cout << "Sistem pesanan tidak tersedia.\n";
         return;
     }
 
-    std::cout << "\n===== DAFTAR SEMUA PESANAN =====" << std::endl;
+    std::cout << "===== DAFTAR SEMUA PESANAN =====" << std::endl;
 
-    const auto& allOrders = ordersDB->getOrderList();
+    // Get all orders sorted by date (using your existing mergeSort)
+    std::vector<std::string> sortedOrderIds = ordersDB->getSortedOrderIds();
 
-    if (allOrders.empty()) {
+    if (sortedOrderIds.empty()) {
         std::cout << "Belum ada pesanan yang masuk.\n";
         std::cout << "Tekan Enter untuk kembali...";
         std::cin.ignore();
         return;
     }
 
-    for (const auto& [orderId, order] : allOrders) {
+    const auto& allOrders = ordersDB->getOrderList();
+
+    // Display orders in chronological order
+    for (const auto& orderId : sortedOrderIds) {
+        const auto& order = allOrders.at(orderId);
+        
         std::cout << "----------------------------------------\n";
         std::cout << "ID Pesanan    : " << orderId << std::endl;
         std::cout << "Pelanggan     : " << order.Pelanggan << std::endl;

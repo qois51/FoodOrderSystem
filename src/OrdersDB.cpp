@@ -13,6 +13,7 @@
 #include "MenuItem.h"
 #include "Queque.h"
 #include "Clear.h"
+#include "headers.h"
 
 using namespace std;
 
@@ -251,6 +252,7 @@ void OrdersDB::processOrder() {
     
     if (orderIds.empty()) {
         std::cout << "\nTidak ada pesanan dengan status 'diproses'.\n";
+        pauseScreen();
         return;
     }
 
@@ -261,7 +263,8 @@ void OrdersDB::processOrder() {
 
     while (!orderQueue.isEmpty()) {
         clearConsole();
-        std::cout << "\n========== DAFTAR ANTRIAN ORDER ==========\n";
+        showMainHeader();
+        std::cout << "========== DAFTAR ANTRIAN ORDER ==========\n";
         int idx = 1;
         for (const auto& orderId : orderIds) {
             const auto& order = orderList.at(orderId);
@@ -285,17 +288,19 @@ void OrdersDB::processOrder() {
         std::string currentOrderId = orderQueue.peek();
         const auto& currentOrder = orderList.at(currentOrderId);
         
-        std::cout << "Pesanan: " << currentOrderId << " - " << currentOrder.Pelanggan << std::endl;
-        std::cout << "1. Tandai sebagai selesai\n";
-        std::cout << "2. Batalkan pesanan\n";
-        std::cout << "0. Kembali ke menu sebelumnya\n";
+        std::cout << "PESANAN: " << currentOrderId << " - " << currentOrder.Pelanggan << std::endl;
+        std::cout << "[1] Tandai sebagai selesai\n";
+        std::cout << "[2] Batalkan pesanan\n";
+        std::cout << "[0] Kembali ke menu sebelumnya\n";
         
         int statusChoice;
+        std::cout << "--------------------------------------\n";
         std::cout << "Pilihan: ";
         if (!(std::cin >> statusChoice)) {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
             std::cout << "Input tidak valid.\n";
+            pauseScreen();
             continue;
         }
         std::cin.ignore();
@@ -307,12 +312,13 @@ void OrdersDB::processOrder() {
         if (statusChoice == 1) {
             orderList[currentOrderId].status = "selesai";
             updateOrderStatusInFile(currentOrderId, "selesai");
-            std::cout << "Status pesanan " << currentOrderId << " diubah menjadi 'selesai'.\n";
+
+            std::cout << "STATUS pesanan " << currentOrderId << " diubah menjadi 'SELESAI'.\n";
             orderQueue.dequeue();
         } else if (statusChoice == 2) {
             orderList[currentOrderId].status = "dibatalkan";
             updateOrderStatusInFile(currentOrderId, "dibatalkan");
-            std::cout << "Status pesanan " << currentOrderId << " diubah menjadi 'dibatalkan'.\n";
+            std::cout << "STATUS pesanan " << currentOrderId << " diubah menjadi 'DIBATALKAN'.\n";
             orderQueue.dequeue();
         }
         
@@ -322,11 +328,6 @@ void OrdersDB::processOrder() {
         }
         
         char cont;
-        std::cout << "Lanjutkan ke pesanan berikutnya? (y/n): ";
-        std::cin >> cont;
-        std::cin.ignore();
-        if (cont == 'n' || cont == 'N') {
-            break;
-        }
+        delay(2);
     }
 }

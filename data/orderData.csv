@@ -1,8 +1,8 @@
 OrderId,Tanggal,Status,Item,Banyak,Pelanggan 
-ORD20250529-014257-5289,2025-05-29,diproses,Burger,1,qois51
-ORD20250529-014257-5289,2025-05-29,diproses,Pizza,1,qois51
-ORD20250529-014257-5289,2025-05-29,diproses,Coca-Cola,2,qois51
-ORD20250529-014554-9453,2025-05-29,diproses,Nugget Ayam,2,satcok
-ORD20250529-014554-9453,2025-05-29,diproses,Fanta,1,satcok
-ORD20250529-015202-3028,2025-05-29,diproses,Milkshake,2,qois51
+ORD20250529-014257-5289,2025-05-29,selesai,Burger,1,qois51
+ORD20250529-014257-5289,2025-05-29,selesai,Pizza,1,qois51
+ORD20250529-014257-5289,2025-05-29,selesai,Coca-Cola,2,qois51
+ORD20250529-014554-9453,2025-05-29,dibatalkan,Nugget Ayam,2,satcok
+ORD20250529-014554-9453,2025-05-29,dibatalkan,Fanta,1,satcok
+ORD20250529-015202-3028,2025-05-29,dibatalkan,Milkshake,2,qois51
 ORD20250529-020100-1662,2025-05-29,diproses,Milkshake,2,qois51
