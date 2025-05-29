@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iomanip>
 #include <random>
+#include <limits>
 
 #include "OrderInfo.h"
 #include "OrdersDB.h"
@@ -292,18 +293,52 @@ void OrdersDB::processOrder() {
         std::cout << "[1] Tandai sebagai selesai\n";
         std::cout << "[2] Batalkan pesanan\n";
         std::cout << "[0] Kembali ke menu sebelumnya\n";
+        std::cout << "--------------------------------------\n";
         
         int statusChoice;
-        std::cout << "--------------------------------------\n";
-        std::cout << "Pilihan: ";
-        if (!(std::cin >> statusChoice)) {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            std::cout << "Input tidak valid.\n";
-            pauseScreen();
-            continue;
+        bool inputValid = false;
+        
+        // Input validation loop
+        while (!inputValid) {
+            std::cout << "Pilihan: ";
+            
+            if (!(std::cin >> statusChoice)) {
+                std::cout << "Input tidak valid. Masukkan angka!\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                pauseScreen();
+                clearConsole();
+                showMainHeader();
+                std::cout << "========== DAFTAR ANTRIAN ORDER ==========\n";
+                int idx = 1;
+                for (const auto& orderId : orderIds) {
+                    const auto& order = orderList.at(orderId);
+                    if (order.status == "diproses") { 
+                        std::cout << idx++ << ". Order ID: " << orderId
+                                << ", Pelanggan: " << order.Pelanggan
+                                << ", Tanggal: " << order.tanggalPemesanan.year << "-"
+                                << order.tanggalPemesanan.month << "-"
+                                << order.tanggalPemesanan.day << std::endl;
+                              
+                        std::cout << "   Item: ";
+                        for (const auto& [item, qty] : order.itemPesanan) {
+                            std::cout << item << " (" << qty << "), ";
+                        }
+                        std::cout << std::endl;
+                    }
+                }
+                std::cout << "========================================\n\n";
+                std::cout << "PESANAN: " << currentOrderId << " - " << currentOrder.Pelanggan << std::endl;
+                std::cout << "[1] Tandai sebagai selesai\n";
+                std::cout << "[2] Batalkan pesanan\n";
+                std::cout << "[0] Kembali ke menu sebelumnya\n";
+                std::cout << "--------------------------------------\n";
+                continue;
+            }
+            
+            std::cin.ignore();
+            inputValid = true;
         }
-        std::cin.ignore();
         
         if (statusChoice == 0) {
             break; 
@@ -320,6 +355,10 @@ void OrdersDB::processOrder() {
             updateOrderStatusInFile(currentOrderId, "dibatalkan");
             std::cout << "STATUS pesanan " << currentOrderId << " diubah menjadi 'DIBATALKAN'.\n";
             orderQueue.dequeue();
+        } else {
+            std::cout << "Pilihan tidak valid.\n";
+            pauseScreen();
+            continue;
         }
         
         if (orderQueue.isEmpty()) {
@@ -327,7 +366,6 @@ void OrdersDB::processOrder() {
             break;
         }
         
-        char cont;
         delay(2);
     }
 }
