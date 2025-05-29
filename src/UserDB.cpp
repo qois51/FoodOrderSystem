@@ -122,10 +122,12 @@ void UserDB::showResetPasswordUI() {
         newPass = getPasswordInput("Password Baru (min 6 karakter): ");
         if (validatePassword(newPass)) break;
         cout << "Password terlalu pendek!\n";
+        delay(2);
     }
 
     if (resetPassword(username, nama, newPass)) {
         cout << "\nPassword berhasil diubah\n";
+        delay(2);
     }
 }
 
@@ -133,6 +135,7 @@ bool UserDB::addUser(const string& username, const string& nama,
                      const string& password, const string& role) {
     if (userMap.count(username)) {
         cout << "\nUsername sudah digunakan\n";
+        delay(2);
         return false;
     }
     userMap[username] = UserInfo(nama, password, role);
@@ -143,7 +146,8 @@ bool UserDB::saveToFile() {
     string tempPath = dbFilePath + ".tmp";
     ofstream file(tempPath);
     if (!file) {
-        cerr << "Gagal menyimpan sementara ke: " << tempPath << endl;
+        cerr << "\nGagal menyimpan sementara ke: " << tempPath << endl;
+        delay(2);
         return false;
     }
 
@@ -229,11 +233,35 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << " [2] Buat Pesanan Baru\n";
             std::cout << " [3] Logout\n";
             std::cout << "-------------------------------------\n";
-            std::cout << " Pilih aktivitas (1/2/3): ";
 
             int choice;
-            cin >> choice;
-            cin.ignore();
+            bool inputValid = false;
+            
+            while (!inputValid) {
+                std::cout << "Pilih aktivitas (1/2/3): ";
+                
+                if (!(std::cin >> choice)) {
+                    std::cout << "\nInput tidak valid. Masukkan angka!\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    pauseScreen();
+                    clearConsole();
+                    showMainHeader();
+
+                    std::cout << "================================\n";
+                    std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
+                    std::cout << "  MENU AKTIVITAS PELANGGAN\n";
+                    std::cout << "================================\n";
+                    std::cout << " [1] Lihat Pesanan\n";
+                    std::cout << " [2] Buat Pesanan Baru\n";
+                    std::cout << " [3] Logout\n";
+                    std::cout << "-------------------------------------\n";
+                    continue;
+                }
+                
+                std::cin.ignore();
+                inputValid = true;
+            }
 
             if (choice == 3) {
                 cout << "Logout berhasil.\n";
@@ -249,10 +277,13 @@ void UserDB::displayUserActivities(const std::string& username) const {
                         ordersDB->createNewOrder(username);
                     } else {
                         std::cout << "Sistem pesanan tidak tersedia.\n";
+                        pauseScreen();
                     }
                     break;
                 default:
-                    std::cout << "Pilihan tidak valid.\n";
+                    std::cout << "\nPilihan tidak valid.\n";
+                    pauseScreen();
+                    break;
             }
         }
     } else if(role == "petugas") {
@@ -268,11 +299,35 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << " [2] Lihat Semua Pesanan\n";
             std::cout << " [3] Logout\n";
             std::cout << "-------------------------------------\n";
-            cout << "Pilih aktivitas (1/2/3): ";
 
             int choice;
-            cin >> choice;
-            cin.ignore();
+            bool inputValid = false;
+            
+            while (!inputValid) {
+                std::cout << "Pilih aktivitas (1/2/3): ";
+                
+                if (!(std::cin >> choice)) {
+                    std::cout << "\nInput tidak valid. Masukkan angka!\n";
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    pauseScreen();
+                    
+                    clearConsole();
+                    showMainHeader();
+                    std::cout << "================================\n";
+                    std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
+                    std::cout << "  MENU AKTIVITAS PETUGAS\n";
+                    std::cout << "================================\n";
+                    std::cout << " [1] Kelola Pesanan\n";
+                    std::cout << " [2] Lihat Semua Pesanan\n";
+                    std::cout << " [3] Logout\n";
+                    std::cout << "-------------------------------------\n";
+                    continue;
+                }
+                
+                std::cin.ignore();
+                inputValid = true;
+            }
 
             if (choice == 3) {
                 cout << "Logout berhasil.\n";
@@ -286,17 +341,21 @@ void UserDB::displayUserActivities(const std::string& username) const {
                         ordersDB->processOrder();
                     } else {
                         std::cout << "Sistem pesanan tidak tersedia.\n";
+                        pauseScreen();
                     }
                     break;
                 case 2:
                     viewAllOrdersForStaff();
                     break;
                 default:
-                    std::cout << "Pilihan tidak valid.\n";
+                    std::cout << "\nPilihan tidak valid.\n";
+                    pauseScreen();
+                    break;
             }
         }
     } else {
         std::cout << "Role tidak dikenal atau tidak ditemukan.\n";
+        pauseScreen();
     }
 }
 
@@ -399,7 +458,6 @@ void UserDB::viewAllOrdersForStaff() const {
 
     // Price data
     extern std::unordered_map<std::string, std::vector<MenuItem>> menuItems;
-
 
     for (const auto& orderId : sortedOrderIds) {
         const auto& order = allOrders.at(orderId);
