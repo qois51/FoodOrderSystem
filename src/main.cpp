@@ -52,14 +52,30 @@ int main() {
         std::cout << "----------------------------------\n";
         
         int choice;
-        std::cout << "Pilih menu: ";
+        bool inputValid = false;
         
-        while (!(std::cin >> choice)) {
-            std::cout << "Input tidak valid. Masukkan angka: ";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        while (!inputValid) {
+            std::cout << "Pilih menu: ";
+        
+            if (!(std::cin >> choice)) {
+                std::cout << "Input tidak valid. Masukkan angka!\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                pauseScreen();
+
+                clearConsole();
+                showMainHeader();
+                std::cout << " [1] Login\n";
+                std::cout << " [2] Register\n";
+                std::cout << " [3] Lupa Password\n";
+                std::cout << " [0] Keluar\n";
+                std::cout << "----------------------------------\n";
+                continue;
+            }
+        
+            std::cin.ignore();
+            inputValid = true;
         }
-        std::cin.ignore();
 
         switch(choice) {
             case 1: {
@@ -77,12 +93,10 @@ int main() {
             case 2: {
                 clearConsole();
                 users.showRegistrationUI();
-                pauseScreen();
                 break;
             }
             case 3: {
                 clearConsole();
-
                 users.showResetPasswordUI();
                 break;
             }
