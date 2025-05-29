@@ -8,11 +8,12 @@
 #include "OrdersDB.h"
 #include "Clear.h"
 #include "headers.h"
+#include "MenuItem.h"
 
 using namespace std;
 
 UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr)
-    : dbFilePath((filesystem::path("..") / filelocation).string()),
+    : dbFilePath(filelocation),
       ordersDB(ordersDBPtr) {
 
     ifstream file(dbFilePath);
@@ -223,10 +224,10 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << "================================\n";
             std::cout << "  SELAMAT DATANG, " << currentUserFullName<< "!\n";
             std::cout << "  MENU AKTIVITAS PELANGGAN\n";
-            std::cout << "================================\n\n";
+            std::cout << "================================\n";
             std::cout << " [1] Lihat Pesanan\n";
             std::cout << " [2] Buat Pesanan Baru\n";
-            std::cout << " [3] Logout\n\n";
+            std::cout << " [3] Logout\n";
             std::cout << "-------------------------------------\n";
             std::cout << " Pilih aktivitas (1/2/3): ";
 
@@ -310,7 +311,6 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
 
     std::cout << "===== RIWAYAT PESANAN SAYA (" << username << ") =====" << std::endl;
 
-    // Get sorted order IDs for this user (ascending by date)
     std::vector<std::string> customerOrderIds = ordersDB->getSortedOrderIds("", username);
 
     if (customerOrderIds.empty()) {
@@ -320,7 +320,11 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
         return;
     }
 
+    // Sort
     const unordered_map<string, OrderInfo>& allOrders = ordersDB->getOrderList();
+
+    // Price data
+    extern std::unordered_map<std::string, std::vector<MenuItem>> menuItems;
     
     for (const std::string& orderId : customerOrderIds) {
         auto it = allOrders.find(orderId);
@@ -335,11 +339,31 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
             std::cout << "Status        : " << order.status << std::endl;
             std::cout << "Item Pesanan  :\n";
 
+            int totalPrice = 0;
             for (const auto& pair : order.itemPesanan) {
                 const std::string& itemName = pair.first;
                 int quantity = pair.second;
-                std::cout << "  - " << itemName << " (x" << quantity << ")\n";
+                
+                int itemPrice = 0;
+                for (const auto& [category, items] : menuItems) {
+                    for (const auto& item : items) {
+                        if (item.name == itemName) {
+                            itemPrice = item.price;
+                            break;
+                        }
+                    }
+                    if (itemPrice > 0) break;
+                }
+                
+                int subtotal = itemPrice * quantity;
+                totalPrice += subtotal;
+                
+                std::cout << "  - " << itemName 
+                          << " (Rp" << itemPrice << " x " << quantity 
+                          << ") = Rp" << subtotal << "\n";
             }
+            
+            std::cout << "\nTOTAL HARGA: Rp" << totalPrice << "\n";
             std::cout << "----------------------------------------\n";
         }
     }
@@ -348,7 +372,6 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
     std::cin.ignore();
     clearConsole();
 }
-
 
 void UserDB::viewAllOrdersForStaff() const {
     clearConsole();
@@ -361,7 +384,7 @@ void UserDB::viewAllOrdersForStaff() const {
 
     std::cout << "===== DAFTAR SEMUA PESANAN =====" << std::endl;
 
-    // Get all orders sorted by date (using your existing mergeSort)
+    // Sort
     std::vector<std::string> sortedOrderIds = ordersDB->getSortedOrderIds();
 
     if (sortedOrderIds.empty()) {
@@ -371,9 +394,13 @@ void UserDB::viewAllOrdersForStaff() const {
         return;
     }
 
+    // Order data
     const auto& allOrders = ordersDB->getOrderList();
 
-    // Display orders in chronological order
+    // Price data
+    extern std::unordered_map<std::string, std::vector<MenuItem>> menuItems;
+
+
     for (const auto& orderId : sortedOrderIds) {
         const auto& order = allOrders.at(orderId);
         
@@ -385,9 +412,32 @@ void UserDB::viewAllOrdersForStaff() const {
                   << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
         std::cout << "Status        : " << order.status << std::endl;
         std::cout << "Item Pesanan  :\n";
+
+        int totalPrice = 0;
         for (const auto& pair : order.itemPesanan) {
-            std::cout << "  - " << pair.first << " (x" << pair.second << ")\n";
+            const std::string& itemName = pair.first;
+            int quantity = pair.second;
+            
+            int itemPrice = 0;
+            for (const auto& [category, items] : menuItems) {
+                for (const auto& item : items) {
+                    if (item.name == itemName) {
+                        itemPrice = item.price;
+                        break;
+                    }
+                }
+                if (itemPrice > 0) break;
+            }
+            
+            int subtotal = itemPrice * quantity;
+            totalPrice += subtotal;
+            
+            std::cout << "  - " << itemName 
+                      << " (Rp" << itemPrice << " x" << quantity 
+                      << ") = Rp" << subtotal << "\n";
         }
+        
+        std::cout << "\nTOTAL HARGA: Rp" << totalPrice << "\n";
         std::cout << "----------------------------------------\n";
     }
     std::cout << "Tekan Enter untuk kembali...";

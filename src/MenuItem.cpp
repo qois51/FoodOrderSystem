@@ -178,10 +178,36 @@ std::unordered_map<std::string, int> selectMenuItems() {
             }
         } else {
             int idx = 1;
+            int totalPrice = 0;
+
             std::cout << "Daftar pesanan Anda:\n";
+            std::cout << "----------------------------\n";
+
             for (const auto& [menuName, qty] : selectedItems) {
-                std::cout << idx++ << ". " << menuName << " x" << qty << "\n";
+                // Find the item price in the menu
+                int itemPrice = 0;
+                for (const auto& [category, items] : menuItems) {
+                    for (const auto& item : items) {
+                        if (item.name == menuName) {
+                            itemPrice = item.price;
+                            break;
+                        }
+                    }
+                    if (itemPrice > 0) break;
+                }
+            
+                int subtotal = itemPrice * qty;
+                totalPrice += subtotal;
+            
+                std::cout << idx++ << ". " << menuName 
+                        << " (Rp" << itemPrice << " x " << qty 
+                        << ") = Rp" << subtotal << "\n";
             }
+        
+            std::cout << "----------------------------\n";
+            std::cout << "TOTAL HARGA: Rp" << totalPrice << "\n";
+            std::cout << "----------------------------\n";
+
             std::cout << std::endl << "Aksi: \n";
             std::cout << "[1] Konfirmasi pesanan\n";
             std::cout << "[2] Tambah item lagi\n";

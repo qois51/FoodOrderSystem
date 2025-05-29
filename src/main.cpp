@@ -7,8 +7,8 @@
 #include "headers.h"
 
 int main() {
-    OrdersDB orders("data/orderData.csv");
-    UserDB users("data/userData.csv", &orders);
+    OrdersDB orders("../data/orderData.csv");
+    UserDB users("../data/userData.csv", &orders);
 
     while (true) {
         clearConsole();
@@ -17,7 +17,7 @@ int main() {
         std::cout << " [2] Register\n";
         std::cout << " [3] Lupa Password\n";
         std::cout << " [0] Keluar\n";
-        std::cout << "\n----------------------------------\n";
+        std::cout << "----------------------------------\n";
         
         int choice;
         std::cout << "Pilih menu: ";
@@ -56,7 +56,6 @@ int main() {
             }
             case 0:
                 std::cout << "\nTerima kasih telah menggunakan sistem.\n";
-                pauseScreen();
                 return 0;
                 break;
             default:

@@ -18,7 +18,7 @@
 using namespace std;
 
 OrdersDB::OrdersDB(string filelocation)
-    : dbFilePath((std::filesystem::path("..") / filelocation).string()) {
+    : dbFilePath(filelocation) {
 
     string line;
     ifstream file(dbFilePath);
