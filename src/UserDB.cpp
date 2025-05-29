@@ -125,7 +125,7 @@ void UserDB::showResetPasswordUI() {
     }
 
     if (resetPassword(username, nama, newPass)) {
-        cout << "Password berhasil diubah\n";
+        cout << "\nPassword berhasil diubah\n";
     }
 }
 
@@ -157,7 +157,6 @@ bool UserDB::saveToFile() {
 
     file.close();
     filesystem::rename(tempPath, dbFilePath);
-    cout << "Data disimpan ke: " << filesystem::absolute(dbFilePath) << endl;
     return true;
 }
 
@@ -165,7 +164,7 @@ bool UserDB::resetPassword(const string& username, const string& nama,
                            const string& newPassword) {
     auto it = userMap.find(username);
     if (it == userMap.end() || it->second.nama != nama) {
-        cout << "Data tidak cocok" << endl;
+        cout << "\nData tidak cocok" << endl;
         return false;
     }
     it->second.password = newPassword;
@@ -191,16 +190,17 @@ std::string UserDB::login() {
     password = getPasswordInput("Silahkan masukkan password: ");
 
     if (checkLogin(username, password)) {
-        std::cout << "Login berhasil!\n";
         currentUser = username;
         auto it = userMap.find(username);
         if (it != userMap.end()) {
             currentUserFullName = it->second.nama;
         };
+
         return username;
     } else {
-        std::cout << "Username atau password salah\n";
+        std::cout << "\nUsername atau password salah\n";
         currentUser.clear();
+
         return "";
     }
 }
