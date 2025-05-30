@@ -3,14 +3,20 @@
 #include <sstream>
 #include <filesystem>
 #include <iomanip>
+#include <limits>
 
 #include "UserDB.h"
 #include "OrdersDB.h"
 #include "Clear.h"
 #include "headers.h"
 #include "MenuItem.h"
+#include "Stack.h"
+#include "OrderAction.h"
 
 using namespace std;
+
+// Static map to track recent orders per user
+static std::unordered_map<std::string, CustomStack<std::string>> userOrderHistory;
 
 UserDB::UserDB(string filelocation, OrdersDB* ordersDBPtr)
     : dbFilePath(filelocation),
@@ -231,14 +237,15 @@ void UserDB::displayUserActivities(const std::string& username) const {
             std::cout << "================================\n";
             std::cout << " [1] Lihat Pesanan\n";
             std::cout << " [2] Buat Pesanan Baru\n";
-            std::cout << " [3] Logout\n";
+            std::cout << " [3] Batalkan Pesanan Terakhir (Undo)\n";
+            std::cout << " [4] Logout\n";
             std::cout << "-------------------------------------\n";
 
             int choice;
             bool inputValid = false;
             
             while (!inputValid) {
-                std::cout << "Pilih aktivitas (1/2/3): ";
+                std::cout << "Pilih aktivitas (1/2/3/4): ";
                 
                 if (!(std::cin >> choice)) {
                     std::cout << "\nInput tidak valid. Masukkan angka!\n";
@@ -254,7 +261,8 @@ void UserDB::displayUserActivities(const std::string& username) const {
                     std::cout << "================================\n";
                     std::cout << " [1] Lihat Pesanan\n";
                     std::cout << " [2] Buat Pesanan Baru\n";
-                    std::cout << " [3] Logout\n";
+                    std::cout << " [3] Batalkan Pesanan Terakhir (Undo)\n";
+                    std::cout << " [4] Logout\n";
                     std::cout << "-------------------------------------\n";
                     continue;
                 }
@@ -263,7 +271,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
                 inputValid = true;
             }
 
-            if (choice == 3) {
+            if (choice == 4) {
                 cout << "Logout berhasil.\n";
                 break;
             }
@@ -274,11 +282,39 @@ void UserDB::displayUserActivities(const std::string& username) const {
                     break;
                 case 2:
                     if (ordersDB) {
+                        // Get order count before creating new order
+                        size_t orderCountBefore = ordersDB->getOrderList().size();
+                        
+                        // Create the order (void function)
                         ordersDB->createNewOrder(username);
+                        
+                        // Get order count after creating new order
+                        size_t orderCountAfter = ordersDB->getOrderList().size();
+                        
+                        // If order was successfully created, find the new order ID
+                        if (orderCountAfter > orderCountBefore) {
+                            // Get the most recent order for this user
+                            std::string newOrderId = getLastOrderIdForUser(username);
+                            
+                            if (!newOrderId.empty()) {
+                                // Add to user's order history stack
+                                userOrderHistory[username].push(newOrderId);
+                                std::cout << "\nPesanan berhasil dibuat! ID: " << newOrderId << "\n";
+                                std::cout << "Anda dapat membatalkan pesanan ini menggunakan opsi Undo.\n";
+                            } else {
+                                std::cout << "\nPesanan berhasil dibuat!\n";
+                            }
+                        } else {
+                            std::cout << "\nPembuatan pesanan dibatalkan atau gagal.\n";
+                        }
+                        pauseScreen();
                     } else {
                         std::cout << "Sistem pesanan tidak tersedia.\n";
                         pauseScreen();
                     }
+                    break;
+                case 3:  // Undo option
+                    undoLastOrder(username);
                     break;
                 default:
                     std::cout << "\nPilihan tidak valid.\n";
@@ -287,6 +323,7 @@ void UserDB::displayUserActivities(const std::string& username) const {
             }
         }
     } else if(role == "petugas") {
+        // Staff menu remains unchanged
         while (true) {
             clearConsole();
             showMainHeader();
@@ -359,7 +396,189 @@ void UserDB::displayUserActivities(const std::string& username) const {
     }
 }
 
-void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
+// Add this helper method to find the most recent order for a user
+std::string UserDB::getLastOrderIdForUser(const std::string& username) const {
+    if (!ordersDB) return "";
+    
+    const auto& allOrders = ordersDB->getOrderList();
+    std::string mostRecentOrderId = "";
+    
+    // Find the most recent order for this user
+    // Assuming order IDs are in chronological order or have timestamps
+    for (const auto& [orderId, orderInfo] : allOrders) {
+        if (orderInfo.Pelanggan == username) {
+            // If this is a newer order (you might need to adjust this logic based on your order ID format)
+            if (mostRecentOrderId.empty() || orderId > mostRecentOrderId) {
+                mostRecentOrderId = orderId;
+            }
+        }
+    }
+    
+    return mostRecentOrderId;
+}
+
+// Alternative helper method if your orders have timestamps
+std::string UserDB::getLastOrderIdForUserByDate(const std::string& username) const {
+    if (!ordersDB) return "";
+    
+    const auto& allOrders = ordersDB->getOrderList();
+    std::string mostRecentOrderId = "";
+    Date mostRecentDate = {0, 0, 0};
+    
+    for (const auto& [orderId, orderInfo] : allOrders) {
+        if (orderInfo.Pelanggan == username) {
+            // Compare dates to find the most recent
+            const Date& orderDate = orderInfo.tanggalPemesanan;
+            
+            if (mostRecentOrderId.empty() || 
+                orderDate.year > mostRecentDate.year ||
+                (orderDate.year == mostRecentDate.year && orderDate.month > mostRecentDate.month) ||
+                (orderDate.year == mostRecentDate.year && orderDate.month == mostRecentDate.month && orderDate.day > mostRecentDate.day)) {
+                
+                mostRecentOrderId = orderId;
+                mostRecentDate = orderDate;
+            }
+        }
+    }
+    
+    return mostRecentOrderId;
+}
+
+void UserDB::undoLastOrder(const std::string& username) const {
+    clearConsole();
+    showMainHeader();
+    
+    std::cout << "===== BATALKAN PESANAN TERAKHIR =====" << std::endl;
+    
+    // Check if user has any orders to undo
+    if (userOrderHistory.find(username) == userOrderHistory.end() || 
+        userOrderHistory[username].isEmpty()) {
+        std::cout << "Tidak ada pesanan yang dapat dibatalkan.\n";
+        std::cout << "Catatan: Hanya pesanan yang dibuat dalam sesi ini yang dapat di-undo.\n";
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+    
+    if (!ordersDB) {
+        std::cout << "Sistem pesanan tidak tersedia.\n";
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+    
+    // Get the last order ID from stack
+    std::string lastOrderId = userOrderHistory[username].peek();
+    
+    // Get order details to show user what they're canceling
+    const auto& allOrders = ordersDB->getOrderList();
+    auto orderIt = allOrders.find(lastOrderId);
+    
+    if (orderIt == allOrders.end()) {
+        std::cout << "Pesanan tidak ditemukan dalam sistem.\n";
+        userOrderHistory[username].pop(); // Remove invalid order from stack
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+    
+    const OrderInfo& order = orderIt->second;
+    
+    // Check if order can still be canceled (only if status is "diproses")
+    if (order.status != "diproses") {
+        std::cout << "Pesanan dengan status '" << order.status << "' tidak dapat dibatalkan.\n";
+        std::cout << "Hanya pesanan dengan status 'diproses' yang dapat dibatalkan.\n";
+        userOrderHistory[username].pop(); // Remove from stack since it can't be undone
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+    
+    // Show order details
+    extern std::unordered_map<std::string, std::vector<MenuItem>> menuItems;
+    
+    std::cout << "Detail pesanan yang akan dibatalkan:\n";
+    std::cout << "----------------------------------------\n";
+    std::cout << "ID Pesanan    : " << lastOrderId << std::endl;
+    std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
+              << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
+              << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
+    std::cout << "Status        : " << order.status << std::endl;
+    std::cout << "Item Pesanan  :\n";
+
+    int totalPrice = 0;
+    for (const auto& pair : order.itemPesanan) {
+        const std::string& itemName = pair.first;
+        int quantity = pair.second;
+        
+        int itemPrice = 0;
+        for (const auto& [category, items] : menuItems) {
+            for (const auto& item : items) {
+                if (item.name == itemName) {
+                    itemPrice = item.price;
+                    break;
+                }
+            }
+            if (itemPrice > 0) break;
+        }
+        
+        int subtotal = itemPrice * quantity;
+        totalPrice += subtotal;
+        
+        std::cout << "  - " << itemName 
+                  << " (Rp" << itemPrice << " x " << quantity 
+                  << ") = Rp" << subtotal << "\n";
+    }
+    
+    std::cout << "\nTOTAL HARGA: Rp" << totalPrice << "\n";
+    std::cout << "----------------------------------------\n\n";
+    
+    // Confirmation
+    std::cout << "Apakah Anda yakin ingin membatalkan pesanan ini?\n";
+    std::cout << "[1] Ya, batalkan pesanan\n";
+    std::cout << "[0] Tidak, kembali ke menu\n";
+    
+    int confirmChoice;
+    bool inputValid = false;
+    
+    while (!inputValid) {
+        std::cout << "Pilihan: ";
+        
+        if (!(std::cin >> confirmChoice)) {
+            std::cout << "Input tidak valid. Masukkan angka (0 atau 1): ";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+        
+        std::cin.ignore();
+        
+        if (confirmChoice < 0 || confirmChoice > 1) {
+            std::cout << "Pilihan tidak valid. Masukkan 0 atau 1: ";
+            continue;
+        }
+        
+        inputValid = true;
+    }
+    
+    if (confirmChoice == 1) {
+        // Cancel the order by updating its status to "dibatalkan"
+        ordersDB->updateOrderStatusInFile(lastOrderId, "dibatalkan");
+    
+        userOrderHistory[username].pop();
+        
+        std::cout << "\nPesanan berhasil dibatalkan!\n";
+        std::cout << "ID Pesanan: " << lastOrderId << "\n";
+        std::cout << "Status diubah menjadi: dibatalkan\n";
+    } else {
+        std::cout << "\nPembatalan pesanan dibatalkan.\n";
+    }
+    
+    std::cout << "\nTekan Enter untuk kembali...";
+    std::cin.ignore();
+}
+
+void UserDB::viewOrderHistoryWithUndo(const std::string& username) const {
     clearConsole();
     showMainHeader();
 
@@ -368,8 +587,35 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
         return;
     }
 
-    std::cout << "===== RIWAYAT PESANAN SAYA (" << username << ") =====" << std::endl;
+    std::cout << "===== RIWAYAT PESANAN & UNDO (" << username << ") =====" << std::endl;
 
+    // Show recent orders that can be undone
+    if (userOrderHistory.find(username) != userOrderHistory.end() && 
+        !userOrderHistory[username].isEmpty()) {
+        
+        std::cout << "\n=== PESANAN YANG DAPAT DIBATALKAN ===\n";
+        CustomStack<std::string> tempStack = userOrderHistory[username];
+        const auto& allOrders = ordersDB->getOrderList();
+        
+        int undoCount = 0;
+        while (!tempStack.isEmpty() && undoCount < 3) {
+            std::string orderId = tempStack.peek();
+            tempStack.pop();
+            
+            auto orderIt = allOrders.find(orderId);
+            if (orderIt != allOrders.end() && orderIt->second.status == "diproses") {
+                std::cout << "- " << orderId << " (Status: " << orderIt->second.status << ")\n";
+                undoCount++;
+            }
+        }
+        
+        if (undoCount == 0) {
+            std::cout << "Tidak ada pesanan yang dapat dibatalkan.\n";
+        }
+        std::cout << "========================\n\n";
+    }
+
+    // Show all order history (existing functionality)
     std::vector<std::string> customerOrderIds = ordersDB->getSortedOrderIds("", username);
 
     if (customerOrderIds.empty()) {
@@ -429,7 +675,6 @@ void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
     
     std::cout << "Tekan Enter untuk kembali...";
     std::cin.ignore();
-    clearConsole();
 }
 
 void UserDB::viewAllOrdersForStaff() const {
@@ -505,5 +750,77 @@ void UserDB::viewAllOrdersForStaff() const {
         std::cout << "----------------------------------------\n";
     }
     std::cout << "Tekan Enter untuk kembali...";
+    std::cin.ignore();
+}
+
+// Add this method implementation
+void UserDB::viewOrderHistoryCustomer(const std::string& username) const {
+    clearConsole();
+    showMainHeader();
+
+    if (!ordersDB) {
+        std::cout << "Sistem pesanan tidak tersedia.\n";
+        pauseScreen();
+        return;
+    }
+
+    std::cout << "===== RIWAYAT PESANAN (" << username << ") =====" << std::endl;
+
+    // Get orders for this specific customer
+    std::vector<std::string> customerOrderIds = ordersDB->getSortedOrderIds("", username);
+
+    if (customerOrderIds.empty()) {
+        std::cout << "Anda belum memiliki pesanan.\n";
+        std::cout << "Tekan Enter untuk kembali...";
+        std::cin.ignore();
+        return;
+    }
+
+    // Get order data
+    const auto& allOrders = ordersDB->getOrderList();
+
+    // Get price data from menu
+    extern std::unordered_map<std::string, std::vector<MenuItem>> menuItems;
+
+    for (const auto& orderId : customerOrderIds) {
+        const auto& order = allOrders.at(orderId);
+        
+        std::cout << "----------------------------------------\n";
+        std::cout << "ID Pesanan    : " << orderId << std::endl;
+        std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
+                  << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
+                  << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
+        std::cout << "Status        : " << order.status << std::endl;
+        std::cout << "Item Pesanan  :\n";
+
+        int totalPrice = 0;
+        for (const auto& pair : order.itemPesanan) {
+            const std::string& itemName = pair.first;
+            int quantity = pair.second;
+            
+            int itemPrice = 0;
+            for (const auto& [category, items] : menuItems) {
+                for (const auto& item : items) {
+                    if (item.name == itemName) {
+                        itemPrice = item.price;
+                        break;
+                    }
+                }
+                if (itemPrice > 0) break;
+            }
+            
+            int subtotal = itemPrice * quantity;
+            totalPrice += subtotal;
+            
+            std::cout << "  - " << itemName 
+                      << " (Rp" << itemPrice << " x " << quantity 
+                      << ") = Rp" << subtotal << "\n";
+        }
+        
+        std::cout << "\nTOTAL HARGA: Rp" << totalPrice << "\n";
+        std::cout << "----------------------------------------\n";
+    }
+    
+    std::cout << "\nTekan Enter untuk kembali...";
     std::cin.ignore();
 }

@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include "UserInfo.h"
 #include "OrdersDB.h"
+#include "Stack.h"
 
 class UserDB {
 private:
@@ -15,6 +16,11 @@ private:
     std::string getPasswordInput(const std::string& prompt) const;
     bool validateRole(const std::string& role) const;
     bool validatePassword(const std::string& password) const;
+
+    void undoLastOrder(const std::string& username) const;
+    void viewOrderHistoryWithUndo(const std::string& username) const;
+    std::string getLastOrderIdForUser(const std::string& username) const;
+    std::string getLastOrderIdForUserByDate(const std::string& username) const;
 
 public:
     UserDB(std::string filelocation, OrdersDB* ordersDB);
