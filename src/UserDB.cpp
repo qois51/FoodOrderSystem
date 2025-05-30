@@ -462,9 +462,15 @@ void UserDB::viewAllOrdersForStaff() const {
     for (const auto& orderId : sortedOrderIds) {
         const auto& order = allOrders.at(orderId);
         
+        std::string customerFullName = order.Pelanggan; 
+        auto userIt = userMap.find(order.Pelanggan);
+        if (userIt != userMap.end()) {
+            customerFullName = userIt->second.nama;
+        }
+        
         std::cout << "----------------------------------------\n";
         std::cout << "ID Pesanan    : " << orderId << std::endl;
-        std::cout << "Pelanggan     : " << order.Pelanggan << std::endl;
+        std::cout << "Pelanggan     : " << customerFullName << std::endl;
         std::cout << "Tanggal       : " << order.tanggalPemesanan.year << "-"
                   << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.month << "-"
                   << std::setw(2) << std::setfill('0') << order.tanggalPemesanan.day << std::endl;
