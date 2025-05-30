@@ -1,14 +1,35 @@
 #include <iostream>
 #include <limits>
+#include <filesystem>
+
 #include "UserDB.h"
 #include "OrdersDB.h"
-
 #include "Clear.h"
 #include "headers.h"
 
+std::string findDataFile(const std::string& filename) {
+    std::vector<std::string> possiblePaths = {
+        "./data/" + filename, 
+        "../data/" + filename,
+    };
+    
+    for (const auto& path : possiblePaths) {
+        if (std::filesystem::exists(path)) {
+            std::cout << "Data file found: " << std::filesystem::absolute(path) << std::endl;
+            return path;
+        }
+    }
+    
+    std::cout << "Data file not found, using default: ./data/" << filename << std::endl;
+    return "./data/" + filename;
+}
+
 int main() {
-    OrdersDB orders("../data/orderData.csv");
-    UserDB users("../data/userData.csv", &orders);
+    std::string orderDataPath = findDataFile("orderData.csv");
+    std::string userDataPath = findDataFile("userData.csv");
+    
+    OrdersDB orders(orderDataPath);
+    UserDB users(userDataPath, &orders);
 
     while (true) {
         clearConsole();
